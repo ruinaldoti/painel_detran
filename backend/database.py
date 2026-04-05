@@ -1,17 +1,35 @@
-from sqlmodel import SQLModel, create_engine, Session
-from sqlalchemy.orm import sessionmaker
 import os
 from dotenv import load_dotenv
+from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://admin:admin_password@localhost:5432/detran_db")
+DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_PORT = os.getenv("DB_PORT", "5432")
+DB_NAME = os.getenv("DB_NAME", "postgree")
+DB_USER = os.getenv("DB_USER", "postgres")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
 
-engine = create_engine(DATABASE_URL, echo=True)
+# Construct the SQLAlchemy database URL dynamically
+DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
-def init_db():
-    SQLModel.metadata.create_all(engine)
+# SQLAlchemy com Connection Pooling conforme especificado
+engine = create_engine(
+    DATABASE_URL,
+    pool_size=5,
+    max_overflow=10,
+    pool_recycle=1800,
+    echo=False  # Altere para True se precisar depurar SQL gerado
+)
 
-def get_session():
-    with Session(engine) as session:
-        yield session
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base = declarative_base()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

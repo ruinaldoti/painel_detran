@@ -1,34 +1,28 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .database import init_db
 from .routers import auth, rag, chat
+import os
 
 app = FastAPI(title="Painel Detran API")
 
-# Configure CORS for frontend access
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # In production, restrict this to the frontend URL
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# Registra as rotas
 app.include_router(auth.router)
 app.include_router(rag.router)
 app.include_router(chat.router)
 
-@app.on_event("startup")
-def on_startup():
-    from sqlmodel import Session
-    from .database import engine, init_db
-    init_db()
-    
-    # We also need to activate the vector extension in PostgreSQL
-    with Session(engine) as session:
-        session.exec("CREATE EXTENSION IF NOT EXISTS vector;")
-        session.commit()
+# Como as tabelas já existem de acordo com o usuário,
+# não precisamos do lifecycle (Base.metadata.create_all).
+# Apenas rodamos a API esperando o banco já existir!
 
 @app.get("/")
 def read_root():
-    return {"message": "Painel Detran API is running"}
+    return {"message": "Painel Detran API executando. Bancos conectando a: " + os.environ.get("DB_NAME", "postgree")}

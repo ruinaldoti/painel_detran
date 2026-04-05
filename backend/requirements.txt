@@ -1,7 +1,6 @@
 fastapi==0.115.0
 uvicorn==0.30.6
 sqlalchemy==2.0.35
-sqlmodel==0.0.22
 psycopg-pool==3.2.3
 psycopg[binary]==3.2.3
 pgvector==0.3.2

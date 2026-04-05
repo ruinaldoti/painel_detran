@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
-from sqlmodel import Session, select
-from ..database import get_session
-from ..models import Document, DocumentChunk
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from sqlalchemy.orm import Session
+from ..database import get_db
+from ..models import Documento, DocumentoChunk
 from ..services.gemini_service import generate_embedding
 import fitz  # PyMuPDF
 from typing import List
+import uuid
 
 router = APIRouter(prefix="/rag", tags=["rag"])
 
@@ -27,7 +28,7 @@ def chunk_text(text: str, chunk_size: int = 1000, overlap: int = 200) -> List[st
 @router.post("/upload")
 async def upload_document(
     file: UploadFile = File(...), 
-    session: Session = Depends(get_session)
+    db: Session = Depends(get_db)
 ):
     if not file.filename.endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Somente arquivos PDF permitidos")
@@ -39,13 +40,13 @@ async def upload_document(
         raise HTTPException(status_code=400, detail="PDF vazio ou ilegível")
 
     # 1. Salvar Documento
-    db_document = Document(
+    db_document = Documento(
         filename=file.filename,
         content_type=file.content_type
     )
-    session.add(db_document)
-    session.commit()
-    session.refresh(db_document)
+    db.add(db_document)
+    db.commit()
+    db.refresh(db_document)
     
     # 2. Chunking
     chunks = chunk_text(text)
@@ -54,18 +55,18 @@ async def upload_document(
     for chunk in chunks:
         if chunk.strip():
             embedding_vector = generate_embedding(chunk)
-            db_chunk = DocumentChunk(
+            db_chunk = DocumentoChunk(
                 document_id=db_document.id,
                 chunk_text=chunk,
                 embedding=embedding_vector
             )
-            session.add(db_chunk)
+            db.add(db_chunk)
             
-    session.commit()
+    db.commit()
     
     return {"message": "Documento RAG processado e vetorizado com sucesso", "chunks_criados": len(chunks)}
     
 @router.get("/documents")
-def list_documents(session: Session = Depends(get_session)):
-    docs = session.exec(select(Document)).all()
+def list_documents(db: Session = Depends(get_db)):
+    docs = db.query(Documento).all()
     return docs

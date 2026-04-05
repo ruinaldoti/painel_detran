@@ -1,27 +1,33 @@
-from sqlmodel import SQLModel, Field
-from typing import Optional, List
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
+import uuid
 from datetime import datetime
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import Column
-import uuid
+from .database import Base
 
-class User(SQLModel, table=True):
-    __tablename__ = "users"
-    id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4, primary_key=True)
-    email: str = Field(unique=True, index=True)
-    hashed_password: str
-    is_active: bool = Field(default=True)
+class Usuario(Base):
+    __tablename__ = "usuarios"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    email = Column(String, unique=True, index=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    is_active = Column(Boolean, default=True)
 
-class Document(SQLModel, table=True):
-    __tablename__ = "documents"
-    id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4, primary_key=True)
-    filename: str
-    content_type: str
-    upload_date: datetime = Field(default_factory=datetime.utcnow)
+class Documento(Base):
+    __tablename__ = "documentos"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    filename = Column(String, nullable=False)
+    content_type = Column(String)
+    upload_date = Column(DateTime, default=datetime.utcnow)
 
-class DocumentChunk(SQLModel, table=True):
-    __tablename__ = "document_chunks"
-    id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4, primary_key=True)
-    document_id: uuid.UUID = Field(foreign_key="documents.id")
-    chunk_text: str
-    embedding: List[float] = Field(sa_column=Column(Vector(768))) # Gemini embedding dimention is typically 768
+class DocumentoChunk(Base):
+    __tablename__ = "documento_chunks"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    document_id = Column(UUID(as_uuid=True), ForeignKey("documentos.id"), nullable=False)
+    chunk_text = Column(Text, nullable=False)
+    embedding = Column(Vector(768)) # Embedding gerado via Gemini
+    
+    documento = relationship("Documento", backref="chunks")

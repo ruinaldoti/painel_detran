@@ -1,0 +1,27 @@
+# Node
+node_modules/
+.next/
+out/
+build/
+.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.env
+backend/.env
+.env
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Agent/AI contexts
+.agent/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db

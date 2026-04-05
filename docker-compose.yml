@@ -1,24 +1,15 @@
-version: '3.8'
-
 services:
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: detran-backend
-    restart: always
+  db:
+    image: ankane/pgvector:latest
+    container_name: detran_pgvector
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin_password
+      POSTGRES_DB: detran_db
     ports:
-      - "8000:8000"
-    env_file:
-      - ./backend/.env
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: detran-frontend
-    restart: always
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
+volumes:
+  pgdata:

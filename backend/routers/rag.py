@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from database import get_db
-from models import Documento, DocumentoChunk
+from models import Documento, DocumentoChunk, Area
 from services.gemini_service import generate_embedding
 import fitz  # PyMuPDF
 from typing import List
@@ -36,6 +36,12 @@ async def upload_document(
     if not file.filename.endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Somente arquivos PDF permitidos")
         
+    # Buscar o nome da área para usar no metadata dos chunks
+    area = db.query(Area).filter(Area.id == id_area).first()
+    if not area:
+        raise HTTPException(status_code=400, detail="Área informada não encontrada")
+    area_nome = area.area  # ex: "GUIA DE PROCEDIMENTOS"
+
     contents = await file.read()
     text = extract_text_from_pdf(contents)
     
@@ -64,7 +70,8 @@ async def upload_document(
             chunk_metadata = {
                 "titulo": titulo,
                 "assunto": assunto,
-                "id_area": str(id_area),
+                "area": area_nome,        # nome legível pela IA
+                "id_area": str(id_area),  # UUID para filtros futuros
                 "nome_arquivo": file.filename
             }
             

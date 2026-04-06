@@ -84,3 +84,18 @@ async def upload_document(
 def list_documents(db: Session = Depends(get_db)):
     docs = db.query(Documento).all()
     return docs
+
+@router.delete("/documents/{document_id}")
+def delete_document(document_id: str, db: Session = Depends(get_db)):
+    doc = db.query(Documento).filter(Documento.id == document_id).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Documento não encontrado")
+    
+    # Exclusão em Cascata manual:
+    # 1. Limpar Vector Database associado à este PDF
+    db.query(DocumentoChunk).filter(DocumentoChunk.documento_id == document_id).delete()
+    # 2. Limpar o registro do próprio arquivo
+    db.delete(doc)
+    
+    db.commit()
+    return {"message": "Documento e chunks deletados com sucesso"}

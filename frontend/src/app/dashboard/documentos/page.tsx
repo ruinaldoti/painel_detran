@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Upload, X, FileText, Loader2 } from "lucide-react";
+import { Upload, X, FileText, Loader2, Trash2 } from "lucide-react";
 
 interface RAGDocument {
   id: string;
@@ -77,6 +77,25 @@ export default function DocumentosPage() {
     }
   };
 
+  const handleDelete = async (id: string, titulo: string) => {
+    if (!window.confirm(`ATENÇÃO!\nTem certeza que deseja excluir o documento "${titulo}" e TODOS os seus blocos da IA?`)) {
+      return;
+    }
+    try {
+      const response = await fetch(`${API_URL}/rag/documents/${id}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        await fetchDocuments();
+      } else {
+        alert("Erro ao excluir o arquivo.");
+      }
+    } catch (error) {
+      console.error("Erro na exclusao:", error);
+      alert("Erro de conexao ao excluir.");
+    }
+  };
+
   return (
     <div className="space-y-6 lg:max-w-6xl">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -112,19 +131,22 @@ export default function DocumentosPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Arquivo
                 </th>
+                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 bg-white">
               {isLoading ? (
                 <tr>
-                  <td colSpan={3} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
                     <Loader2 className="mx-auto h-6 w-6 animate-spin text-gray-400" />
                     <p className="mt-2">Carregando documentos...</p>
                   </td>
                 </tr>
               ) : documents.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
                     <FileText className="mx-auto h-8 w-8 text-gray-300" />
                     <p className="mt-2 font-medium">Nenhum documento encontrado.</p>
                     <p className="text-sm">Faça o upload do seu primeiro PDF.</p>
@@ -149,6 +171,15 @@ export default function DocumentosPage() {
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-400">
                       {doc.nome_arquivo}
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                      <button
+                        onClick={() => handleDelete(doc.id, doc.titulo || doc.nome_arquivo)}
+                        className="text-red-500 hover:text-red-700 transition-colors p-2 rounded-full hover:bg-red-50"
+                        title="Excluir Documento"
+                      >
+                        <Trash2 size={18} />
+                      </button>
                     </td>
                   </tr>
                 ))

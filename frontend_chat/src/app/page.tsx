@@ -263,18 +263,17 @@ export default function ChatPage() {
 
         {/* BOTÃO FLUTUANTE */}
         {!isOpen && (
-          <div className="flex flex-col items-end gap-2">
-            <div className="bg-[#006B3C] text-white text-xs px-4 py-2.5 rounded-2xl rounded-br-sm shadow-lg max-w-[200px] text-right leading-snug">
-              Olá!<br />
+          <div className="flex items-end gap-3 cursor-pointer" onClick={() => setIsOpen(true)}>
+            {/* Balão de fala */}
+            <div className="bg-[#006B3C] text-white text-sm px-5 py-3.5 rounded-2xl rounded-br-none shadow-lg w-[240px] leading-relaxed">
+              Olá! 👋<br />
               Eu sou o Assistente Virtual do Detran!<br />
               <strong>Como posso te ajudar?</strong>
             </div>
-            <button
-              onClick={() => setIsOpen(true)}
-              className="w-16 h-16 rounded-full bg-[#006B3C] hover:bg-[#005230] shadow-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 border-4 border-white"
-            >
+            {/* Ícone do bot */}
+            <div className="w-16 h-16 rounded-full bg-[#006B3C] shadow-2xl flex items-center justify-center border-4 border-white shrink-0 hover:bg-[#005230] transition-all hover:scale-105 active:scale-95">
               <Bot size={30} className="text-white" />
-            </button>
+            </div>
           </div>
         )}
       </div>

@@ -20,18 +20,19 @@ class Usuario(Base):
 
 class Documento(Base):
     __tablename__ = "documentos"
-    
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    filename = Column(String, nullable=False)
-    content_type = Column(String)
-    upload_date = Column(DateTime, default=datetime.utcnow)
+    titulo = Column(String(255), nullable=False)
+    nome_arquivo = Column(String(255), nullable=True)
+    criado_por = Column(UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=True)
+    criado_em = Column(DateTime, default=datetime.utcnow)
 
 class DocumentoChunk(Base):
     __tablename__ = "documento_chunks"
-    
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    document_id = Column(UUID(as_uuid=True), ForeignKey("documentos.id"), nullable=False)
-    chunk_text = Column(Text, nullable=False)
-    embedding = Column(Vector(768)) # Embedding gerado via Gemini
-    
+    documento_id = Column(UUID(as_uuid=True), ForeignKey("documentos.id"), nullable=False)
+    conteudo_texto = Column(Text, nullable=False)
+    vetor_embedding = Column(Vector(768))
+    pagina = Column(Integer, nullable=True)
+    criado_em = Column(DateTime, default=datetime.utcnow)
+
     documento = relationship("Documento", backref="chunks")

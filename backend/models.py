@@ -23,6 +23,12 @@ class Area(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     area = Column(String(150), nullable=False, unique=True)
 
+class Assunto(Base):
+    __tablename__ = "assunto"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id_area = Column(UUID(as_uuid=True), ForeignKey("area.id"), nullable=False)
+    assunto = Column(String(255), nullable=False)
+
 class Documento(Base):
     __tablename__ = "documentos"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

@@ -24,14 +24,29 @@ def generate_embedding(text: str) -> list[float]:
 
 def generate_chat_response(query: str, context: str) -> str:
     client = get_client()
-    prompt = f"""
-Você é um assistente do Detran. Utilize o CONTEXTO FORNECIDO abaixo para responder à PERGUNTA do agente de atendimento.
-Se você não souber a resposta com base no contexto, responda que não tem a informação nos manuais carregados. Não invente leis ou regras.
+    
+    if not context.strip():
+        return (
+            "Olá! Não encontrei informações sobre esse assunto nos nossos documentos ainda. "
+            "Estou em processo de aprendizado! 😊 \n"
+            "Por favor, entre em contato com o DETRAN-CE pelo canal oficial para mais esclarecimentos."
+        )
+    
+    prompt = f"""Você é o assistente virtual oficial do DETRAN-CE.
+
+INSTRUÇÕES OBRIGATÓRIAS:
+1. Responda APENAS com base no CONTEXTO FORNECIDO abaixo.
+2. Se a informação solicitada NÃO estiver no contexto, responda exatamente: 
+   "Não encontrei essa informação nos nossos documentos ainda. Estou em processo de aprendizado! 😊 Por favor, entre em contato com o DETRAN-CE pelo canal oficial."
+3. NUNCA invente leis, regulamentos, valores, prazos ou procedimentos.
+4. Seja sempre educado, cordial e objetivo.
+5. Responda sempre em português do Brasil.
+6. Não cite que está usando um contexto ou documento — responda naturalmente.
 
 CONTEXTO FORNECIDO:
 {context}
 
-PERGUNTA:
+PERGUNTA DO USUÁRIO:
 {query}
 """
     response = client.models.generate_content(

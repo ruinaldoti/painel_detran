@@ -2,11 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from database import get_db
-from models import Area
+from models import Area, Assunto
 from uuid import UUID
 import traceback
 
 router = APIRouter(prefix="/areas", tags=["areas"])
+
+# ──────────────────── SCHEMAS ────────────────────
 
 class AreaCreate(BaseModel):
     area: str
@@ -14,9 +16,20 @@ class AreaCreate(BaseModel):
 class AreaResponse(BaseModel):
     id: UUID
     area: str
-
     class Config:
         from_attributes = True
+
+class AssuntoCreate(BaseModel):
+    assunto: str
+
+class AssuntoResponse(BaseModel):
+    id: UUID
+    id_area: UUID
+    assunto: str
+    class Config:
+        from_attributes = True
+
+# ──────────────────── AREAS ────────────────────
 
 @router.get("/", response_model=list[AreaResponse])
 def list_areas(db: Session = Depends(get_db)):
@@ -46,3 +59,38 @@ def delete_area(area_id: str, db: Session = Depends(get_db)):
     db.delete(area)
     db.commit()
     return {"message": "Área excluída com sucesso"}
+
+# ──────────────────── ASSUNTOS ────────────────────
+
+@router.get("/{area_id}/assuntos", response_model=list[AssuntoResponse])
+def list_assuntos(area_id: str, db: Session = Depends(get_db)):
+    return db.query(Assunto).filter(Assunto.id_area == area_id).order_by(Assunto.assunto).all()
+
+@router.post("/{area_id}/assuntos", response_model=AssuntoResponse, status_code=201)
+def create_assunto(area_id: str, body: AssuntoCreate, db: Session = Depends(get_db)):
+    area = db.query(Area).filter(Area.id == area_id).first()
+    if not area:
+        raise HTTPException(status_code=404, detail="Área não encontrada")
+    existing = db.query(Assunto).filter(
+        Assunto.id_area == area_id,
+        Assunto.assunto == body.assunto.strip()
+    ).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Assunto já cadastrado nesta área")
+    novo = Assunto(id_area=area_id, assunto=body.assunto.strip())
+    db.add(novo)
+    db.commit()
+    db.refresh(novo)
+    return novo
+
+@router.delete("/{area_id}/assuntos/{assunto_id}", status_code=200)
+def delete_assunto(area_id: str, assunto_id: str, db: Session = Depends(get_db)):
+    assunto = db.query(Assunto).filter(
+        Assunto.id == assunto_id,
+        Assunto.id_area == area_id
+    ).first()
+    if not assunto:
+        raise HTTPException(status_code=404, detail="Assunto não encontrado")
+    db.delete(assunto)
+    db.commit()
+    return {"message": "Assunto excluído com sucesso"}

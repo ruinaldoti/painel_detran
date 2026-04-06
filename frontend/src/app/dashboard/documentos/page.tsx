@@ -123,7 +123,7 @@ export default function DocumentosPage() {
                   Título
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Serviços
+                  Área
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Assunto
@@ -207,7 +207,7 @@ export default function DocumentosPage() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Serviços *
+                    Área *
                   </label>
                   <input
                     type="text"

@@ -13,6 +13,12 @@ body {
   background: var(--detran-gray);
 }
 
+/* Garante quebra de texto longo (URLs) dentro dos balões */
+* {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
 /* Animação typing dots */
 @keyframes bounce-dot {
   0%, 80%, 100% { transform: scale(0); }

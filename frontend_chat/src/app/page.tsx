@@ -147,7 +147,7 @@ export default function ChatPage() {
             </div>
 
             {/* Body */}
-            <div className="flex-1 overflow-y-auto bg-[#f7f7f7]">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden bg-[#f7f7f7]">
 
               {/* VIEW: ÁREAS */}
               {view === "areas" && (
@@ -214,7 +214,7 @@ export default function ChatPage() {
                   {messages.map((m, i) => (
                     <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                       <div
-                        className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-sm ${
+                        className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-sm break-words overflow-hidden ${
                           m.role === "user"
                             ? "bg-[#006B3C] text-white rounded-br-sm"
                             : "bg-white text-gray-800 border border-gray-200 rounded-bl-sm"

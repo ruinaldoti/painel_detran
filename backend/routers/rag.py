@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from database import get_db
 from models import Documento, DocumentoChunk
@@ -27,6 +27,9 @@ def chunk_text(text: str, chunk_size: int = 1000, overlap: int = 200) -> List[st
 
 @router.post("/upload")
 async def upload_document(
+    titulo: str = Form(...),
+    assunto: str = Form(...),
+    setor: str = Form(None),
     file: UploadFile = File(...), 
     db: Session = Depends(get_db)
 ):
@@ -41,8 +44,10 @@ async def upload_document(
 
     # 1. Salvar Documento
     db_document = Documento(
-        filename=file.filename,
-        content_type=file.content_type
+        titulo=titulo,
+        assunto=assunto,
+        setor=setor,
+        nome_arquivo=file.filename
     )
     db.add(db_document)
     db.commit()
@@ -55,10 +60,19 @@ async def upload_document(
     for chunk in chunks:
         if chunk.strip():
             embedding_vector = generate_embedding(chunk)
+            
+            chunk_metadata = {
+                "titulo": titulo,
+                "assunto": assunto,
+                "setor": setor,
+                "nome_arquivo": file.filename
+            }
+            
             db_chunk = DocumentoChunk(
-                document_id=db_document.id,
-                chunk_text=chunk,
-                embedding=embedding_vector
+                documento_id=db_document.id,
+                conteudo_texto=chunk,
+                vetor_embedding=embedding_vector,
+                metadata_=chunk_metadata
             )
             db.add(db_chunk)
             

@@ -5,8 +5,10 @@ import { Upload, X, FileText, Loader2 } from "lucide-react";
 
 interface RAGDocument {
   id: string;
-  filename: string;
-  content_type: string;
+  titulo: string;
+  nome_arquivo: string;
+  assunto: string;
+  setor: string;
 }
 
 export default function DocumentosPage() {
@@ -14,6 +16,9 @@ export default function DocumentosPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [titulo, setTitulo] = useState("");
+  const [assunto, setAssunto] = useState("");
+  const [setor, setSetor] = useState("");
   const [isUploading, setIsUploading] = useState(false);
 
   const API_URL = "https://api.iairuinaldo.com.br";
@@ -43,6 +48,9 @@ export default function DocumentosPage() {
 
     setIsUploading(true);
     const formData = new FormData();
+    formData.append("titulo", titulo);
+    formData.append("assunto", assunto);
+    if (setor) formData.append("setor", setor);
     formData.append("file", selectedFile);
 
     try {
@@ -55,6 +63,9 @@ export default function DocumentosPage() {
         await fetchDocuments();
         setIsModalOpen(false);
         setSelectedFile(null);
+        setTitulo("");
+        setAssunto("");
+        setSetor("");
       } else {
         alert("Erro no upload do arquivo.");
       }
@@ -90,13 +101,16 @@ export default function DocumentosPage() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Documento
+                  Título
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Tipo
+                  Assunto
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  ID
+                  Setor
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Arquivo
                 </th>
               </tr>
             </thead>
@@ -122,16 +136,19 @@ export default function DocumentosPage() {
                     <td className="whitespace-nowrap px-6 py-4">
                       <div className="flex items-center">
                         <FileText className="mr-3 h-5 w-5 text-gray-400" />
-                        <span className="font-medium text-gray-900">{doc.filename}</span>
+                        <span className="font-medium text-gray-900">{doc.titulo || doc.nome_arquivo}</span>
                       </div>
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                       <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
-                        {doc.content_type || "PDF"}
+                        {doc.assunto || "Geral"}
                       </span>
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-400 font-mono text-xs">
-                      {doc.id}
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                      {doc.setor || "-"}
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-400">
+                      {doc.nome_arquivo}
                     </td>
                   </tr>
                 ))
@@ -157,6 +174,44 @@ export default function DocumentosPage() {
             </div>
             <form onSubmit={handleUpload} className="p-6">
               <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Título Arquivo *
+                  </label>
+                  <input
+                    type="text"
+                    value={titulo}
+                    onChange={(e) => setTitulo(e.target.value)}
+                    required
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                    placeholder="Ex: Manual do DETRAN v1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Assunto do Arquivo *
+                  </label>
+                  <input
+                    type="text"
+                    value={assunto}
+                    onChange={(e) => setAssunto(e.target.value)}
+                    required
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                    placeholder="Ex: CNH, Multas, IPVA..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Setor (Opcional)
+                  </label>
+                  <input
+                    type="text"
+                    value={setor}
+                    onChange={(e) => setSetor(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                    placeholder="Ex: Atendimento, Jurídico..."
+                  />
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Arquivo (PDF apenas)

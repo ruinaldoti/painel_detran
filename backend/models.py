@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 import uuid
 from datetime import datetime
@@ -22,6 +22,8 @@ class Documento(Base):
     __tablename__ = "documentos"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     titulo = Column(String(255), nullable=False)
+    assunto = Column(String(255), nullable=False)
+    setor = Column(String(255), nullable=True)
     nome_arquivo = Column(String(255), nullable=True)
     criado_por = Column(UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=True)
     criado_em = Column(DateTime, default=datetime.utcnow)
@@ -33,6 +35,7 @@ class DocumentoChunk(Base):
     conteudo_texto = Column(Text, nullable=False)
     vetor_embedding = Column(Vector(768))
     pagina = Column(Integer, nullable=True)
+    metadata_ = Column("metadata", JSONB, nullable=True)
     criado_em = Column(DateTime, default=datetime.utcnow)
 
     documento = relationship("Documento", backref="chunks")

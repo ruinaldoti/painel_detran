@@ -155,14 +155,14 @@ export default function DocumentosPage() {
               ) : (
                 documents.map((doc) => (
                   <tr key={doc.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="whitespace-nowrap px-6 py-4">
+                    <td className="px-6 py-4 min-w-[250px]">
                       <div className="flex items-center">
-                        <FileText className="mr-3 h-5 w-5 text-gray-400" />
-                        <span className="font-medium text-gray-900">{doc.titulo || doc.nome_arquivo}</span>
+                        <FileText className="mr-3 h-5 w-5 text-gray-400 shrink-0" />
+                        <span className="font-medium text-gray-900 break-words">{doc.titulo || doc.nome_arquivo}</span>
                       </div>
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
+                    <td className="px-6 py-4 text-sm text-gray-500 min-w-[300px]">
+                      <span className="inline-block rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 break-words text-wrap">
                         {doc.assunto || "Geral"}
                       </span>
                     </td>

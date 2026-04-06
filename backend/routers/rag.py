@@ -29,7 +29,7 @@ def chunk_text(text: str, chunk_size: int = 1000, overlap: int = 200) -> List[st
 async def upload_document(
     titulo: str = Form(...),
     assunto: str = Form(...),
-    setor: str = Form(None),
+    setor: str = Form(...),
     file: UploadFile = File(...), 
     db: Session = Depends(get_db)
 ):

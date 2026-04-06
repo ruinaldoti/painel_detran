@@ -220,12 +220,13 @@ export default function DocumentosPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Serviços (Opcional)
+                    Serviços *
                   </label>
                   <input
                     type="text"
                     value={servico}
                     onChange={(e) => setServico(e.target.value)}
+                    required
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     placeholder="Ex: Atendimento, Jurídico..."
                   />

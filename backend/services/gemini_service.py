@@ -14,10 +14,11 @@ def get_client():
 
 def generate_embedding(text: str) -> list[float]:
     client = get_client()
-    # gemini-text-embedding-004 is recommended for general text embeddings
+    # gemini-embedding-001 com precisão de 768 dimensões devido ao PgVector
     response = client.models.embed_content(
-        model="text-embedding-004",   
+        model="gemini-embedding-001",   
         contents=text,
+        config=types.EmbedContentConfig(output_dimensionality=768)
     )
     return response.embeddings[0].values
 

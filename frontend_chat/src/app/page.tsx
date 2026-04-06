@@ -266,8 +266,7 @@ export default function ChatPage() {
           <div className="flex items-end gap-3 cursor-pointer" onClick={() => setIsOpen(true)}>
             {/* Balão de fala */}
             <div className="bg-[#006B3C] text-white text-sm px-5 py-3.5 rounded-2xl rounded-br-none shadow-lg w-[240px] leading-relaxed">
-              Olá! 👋<br />
-              Eu sou o Assistente Virtual do Detran!<br />
+              Olá! Sou o Assistente Virtual do Detran-CE.<br />
               <strong>Como posso te ajudar?</strong>
             </div>
             {/* Ícone do bot */}

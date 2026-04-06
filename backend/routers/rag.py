@@ -29,7 +29,7 @@ def chunk_text(text: str, chunk_size: int = 1000, overlap: int = 200) -> List[st
 async def upload_document(
     titulo: str = Form(...),
     assunto: str = Form(...),
-    setor: str = Form(...),
+    id_area: str = Form(...),
     file: UploadFile = File(...), 
     db: Session = Depends(get_db)
 ):
@@ -46,7 +46,7 @@ async def upload_document(
     db_document = Documento(
         titulo=titulo,
         assunto=assunto,
-        setor=setor,
+        id_area=id_area,
         nome_arquivo=file.filename
     )
     db.add(db_document)
@@ -64,7 +64,7 @@ async def upload_document(
             chunk_metadata = {
                 "titulo": titulo,
                 "assunto": assunto,
-                "setor": setor,
+                "id_area": str(id_area),
                 "nome_arquivo": file.filename
             }
             

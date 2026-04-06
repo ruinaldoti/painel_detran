@@ -8,7 +8,13 @@ interface RAGDocument {
   titulo: string;
   nome_arquivo: string;
   assunto: string;
-  setor: string;
+  id_area: string | null;
+  area_nome?: string;
+}
+
+interface Area {
+  id: string;
+  area: string;
 }
 
 export default function DocumentosPage() {
@@ -18,8 +24,9 @@ export default function DocumentosPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [titulo, setTitulo] = useState("");
   const [assunto, setAssunto] = useState("");
-  const [servico, setServico] = useState("");
+  const [idArea, setIdArea] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const [areas, setAreas] = useState<Area[]>([]);
 
   const API_URL = "https://api.iairuinaldo.com.br";
 
@@ -38,8 +45,16 @@ export default function DocumentosPage() {
     }
   };
 
+  const fetchAreas = async () => {
+    try {
+      const response = await fetch(`${API_URL}/areas/`);
+      if (response.ok) setAreas(await response.json());
+    } catch { /* silencioso */ }
+  };
+
   useEffect(() => {
     fetchDocuments();
+    fetchAreas();
   }, []);
 
   const handleUpload = async (e: React.FormEvent) => {
@@ -50,7 +65,7 @@ export default function DocumentosPage() {
     const formData = new FormData();
     formData.append("titulo", titulo);
     formData.append("assunto", assunto);
-    if (servico) formData.append("setor", servico);
+    formData.append("id_area", idArea);
     formData.append("file", selectedFile);
 
     try {
@@ -65,7 +80,7 @@ export default function DocumentosPage() {
         setSelectedFile(null);
         setTitulo("");
         setAssunto("");
-        setServico("");
+        setIdArea("");
       } else {
         alert("Erro no upload do arquivo.");
       }
@@ -159,7 +174,9 @@ export default function DocumentosPage() {
                       {doc.titulo || doc.nome_arquivo}
                     </td>
                     <td className="px-5 py-3 text-sm text-gray-600 align-middle">
-                      {doc.setor || "-"}
+                      {doc.id_area
+                        ? (areas.find(a => a.id === doc.id_area)?.area || "-")
+                        : "-"}
                     </td>
                     <td className="px-5 py-3 text-sm text-gray-600 align-middle break-words">
                       {doc.assunto || "Geral"}
@@ -209,14 +226,17 @@ export default function DocumentosPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Área *
                   </label>
-                  <input
-                    type="text"
-                    value={servico}
-                    onChange={(e) => setServico(e.target.value)}
+                  <select
+                    value={idArea}
+                    onChange={(e) => setIdArea(e.target.value)}
                     required
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                    placeholder="Ex: Atendimento, Jurídico..."
-                  />
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white"
+                  >
+                    <option value="">Selecione uma área...</option>
+                    {areas.map((a) => (
+                      <option key={a.id} value={a.id}>{a.area}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">

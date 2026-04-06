@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import auth, rag, chat
+from routers import auth, rag, chat, areas
 import os
 
 app = FastAPI(title="Painel Detran API")
@@ -18,6 +18,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(rag.router)
 app.include_router(chat.router)
+app.include_router(areas.router)
 
 # Como as tabelas já existem de acordo com o usuário,
 # não precisamos do lifecycle (Base.metadata.create_all).

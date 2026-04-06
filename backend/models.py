@@ -18,12 +18,19 @@ class Usuario(Base):
     criado_em = Column(DateTime, default=datetime.utcnow)
     ultimo_acesso = Column(DateTime, nullable=True)
 
+class Area(Base):
+    __tablename__ = "area"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    area = Column(String(150), nullable=False, unique=True)
+
+    documentos = relationship("Documento", backref="area_rel", lazy="dynamic")
+
 class Documento(Base):
     __tablename__ = "documentos"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     titulo = Column(String(255), nullable=False)
     assunto = Column(String(255), nullable=False)
-    setor = Column(String(255), nullable=True)
+    id_area = Column(UUID(as_uuid=True), ForeignKey("area.id"), nullable=True)
     nome_arquivo = Column(String(255), nullable=True)
     criado_por = Column(UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=True)
     criado_em = Column(DateTime, default=datetime.utcnow)

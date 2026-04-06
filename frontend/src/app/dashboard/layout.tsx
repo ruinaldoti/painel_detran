@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { LayoutDashboard, FileText, Users, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, FileText, Users, LogOut, Menu, X, Layers } from "lucide-react";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -38,6 +38,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Documentos", href: "/dashboard/documentos", icon: FileText },
+    { name: "Áreas", href: "/dashboard/areas", icon: Layers },
     { name: "Usuários", href: "/dashboard/usuarios", icon: Users },
   ];
 

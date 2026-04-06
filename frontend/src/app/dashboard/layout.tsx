@@ -113,7 +113,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
 
         {/* Dynamic Page Content */}
-        <div className="flex-1 overflow-y-auto w-full">
+        <div className="flex-1 overflow-y-auto w-full p-4 md:p-8">
           {children}
         </div>
       </main>

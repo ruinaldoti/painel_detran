@@ -97,7 +97,7 @@ export default function DocumentosPage() {
   };
 
   return (
-    <div className="w-full h-full flex flex-col p-4 md:p-8 space-y-6">
+    <div className="w-full h-full flex flex-col space-y-6">
       
       {/* Breadcrumbs */}
       <div className="flex items-center text-sm font-medium text-blue-600 gap-1.5">

@@ -70,8 +70,7 @@ async def upload_document(
             chunk_metadata = {
                 "titulo": titulo,
                 "assunto": assunto,
-                "area": area_nome,        # nome legível pela IA
-                "id_area": str(id_area),  # UUID para filtros futuros
+                "area": area_nome,
                 "nome_arquivo": file.filename
             }
             

@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from ..database import get_db
-from ..models import DocumentoChunk
-from ..services.gemini_service import generate_embedding, generate_chat_response
+from database import get_db
+from models import DocumentoChunk
+from services.gemini_service import generate_embedding, generate_chat_response
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 

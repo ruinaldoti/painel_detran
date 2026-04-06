@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
-from ..database import get_db
-from ..models import Documento, DocumentoChunk
-from ..services.gemini_service import generate_embedding
+from database import get_db
+from models import Documento, DocumentoChunk
+from services.gemini_service import generate_embedding
 import fitz  # PyMuPDF
 from typing import List
 import uuid

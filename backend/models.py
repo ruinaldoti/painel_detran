@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship
 import uuid
 from datetime import datetime
 from pgvector.sqlalchemy import Vector
-from .database import Base
+from database import Base
 
 class Usuario(Base):
     __tablename__ = "usuarios"

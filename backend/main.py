@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import auth, rag, chat
+from routers import auth, rag, chat
 import os
 
 app = FastAPI(title="Painel Detran API")

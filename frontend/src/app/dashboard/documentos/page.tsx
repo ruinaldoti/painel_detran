@@ -18,7 +18,7 @@ export default function DocumentosPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [titulo, setTitulo] = useState("");
   const [assunto, setAssunto] = useState("");
-  const [setor, setSetor] = useState("");
+  const [servico, setServico] = useState("");
   const [isUploading, setIsUploading] = useState(false);
 
   const API_URL = "https://api.iairuinaldo.com.br";
@@ -50,7 +50,7 @@ export default function DocumentosPage() {
     const formData = new FormData();
     formData.append("titulo", titulo);
     formData.append("assunto", assunto);
-    if (setor) formData.append("setor", setor);
+    if (servico) formData.append("setor", servico);
     formData.append("file", selectedFile);
 
     try {
@@ -65,7 +65,7 @@ export default function DocumentosPage() {
         setSelectedFile(null);
         setTitulo("");
         setAssunto("");
-        setSetor("");
+        setServico("");
       } else {
         alert("Erro no upload do arquivo.");
       }
@@ -123,10 +123,10 @@ export default function DocumentosPage() {
                   Título
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Assunto
+                  Serviços
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Setor
+                  Assunto
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Arquivo
@@ -161,13 +161,13 @@ export default function DocumentosPage() {
                         <span className="font-medium text-gray-900 break-words">{doc.titulo || doc.nome_arquivo}</span>
                       </div>
                     </td>
+                    <td className="px-6 py-4 text-sm text-gray-500 align-middle">
+                      {doc.setor || "-"}
+                    </td>
                     <td className="px-6 py-4 text-sm text-gray-500 w-1/3 align-middle">
                       <span className="inline-block rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 break-words text-wrap">
                         {doc.assunto || "Geral"}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 align-middle">
-                      {doc.setor || "-"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-400 break-words max-w-[200px] align-middle">
                       {doc.nome_arquivo}
@@ -220,6 +220,18 @@ export default function DocumentosPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Serviços (Opcional)
+                  </label>
+                  <input
+                    type="text"
+                    value={servico}
+                    onChange={(e) => setServico(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                    placeholder="Ex: Atendimento, Jurídico..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Assunto do Arquivo *
                   </label>
                   <input
@@ -229,18 +241,6 @@ export default function DocumentosPage() {
                     required
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     placeholder="Ex: CNH, Multas, IPVA..."
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Setor (Opcional)
-                  </label>
-                  <input
-                    type="text"
-                    value={setor}
-                    onChange={(e) => setSetor(e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                    placeholder="Ex: Atendimento, Jurídico..."
                   />
                 </div>
                 <div>

@@ -23,8 +23,6 @@ class Area(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     area = Column(String(150), nullable=False, unique=True)
 
-    documentos = relationship("Documento", backref="area_rel", lazy="dynamic")
-
 class Documento(Base):
     __tablename__ = "documentos"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

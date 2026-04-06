@@ -155,24 +155,24 @@ export default function DocumentosPage() {
               ) : (
                 documents.map((doc) => (
                   <tr key={doc.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 min-w-[250px]">
+                    <td className="px-6 py-4 w-1/4 align-middle">
                       <div className="flex items-center">
                         <FileText className="mr-3 h-5 w-5 text-gray-400 shrink-0" />
                         <span className="font-medium text-gray-900 break-words">{doc.titulo || doc.nome_arquivo}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 min-w-[300px]">
+                    <td className="px-6 py-4 text-sm text-gray-500 w-1/3 align-middle">
                       <span className="inline-block rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 break-words text-wrap">
                         {doc.assunto || "Geral"}
                       </span>
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                    <td className="px-6 py-4 text-sm text-gray-500 align-middle">
                       {doc.setor || "-"}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-400">
+                    <td className="px-6 py-4 text-sm text-gray-400 break-words max-w-[200px] align-middle">
                       {doc.nome_arquivo}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium w-16 align-middle">
                       <button
                         onClick={() => handleDelete(doc.id, doc.titulo || doc.nome_arquivo)}
                         className="text-red-500 hover:text-red-700 transition-colors p-2 rounded-full hover:bg-red-50"

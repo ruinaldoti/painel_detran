@@ -37,6 +37,8 @@ export default function LoginPage() {
 
       const data = await response.json();
       localStorage.setItem("access_token", data.access_token);
+      localStorage.setItem("user_name", data.user_name || "USUÁRIO DO SISTEMA");
+      if (data.user_perfil) localStorage.setItem("user_perfil", data.user_perfil);
       router.push("/dashboard");
     } catch (err: any) {
       setError(err.message || "Erro de conexão com o servidor");

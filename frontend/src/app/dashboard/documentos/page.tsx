@@ -97,7 +97,7 @@ export default function DocumentosPage() {
   };
 
   return (
-    <div className="w-full h-full flex flex-col p-4 md:p-6 space-y-6 max-w-[1400px] mx-auto">
+    <div className="w-full h-full flex flex-col p-4 md:p-8 space-y-6">
       
       {/* Breadcrumbs */}
       <div className="flex items-center text-sm font-medium text-blue-600 gap-1.5">
@@ -113,35 +113,8 @@ export default function DocumentosPage() {
           onClick={() => setIsModalOpen(true)}
           className="rounded bg-[#2563eb] px-5 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 transition-colors"
         >
-          Novo
+          Upload do Arquivo
         </button>
-      </div>
-
-      {/* Filtro de Pesquisa Box */}
-      <div className="bg-white border border-gray-200 rounded-sm shadow-sm flex flex-col">
-        <div className="border-b border-gray-100 px-4 py-3 bg-gray-50/50">
-          <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
-            <span className="text-xs">▼</span> Filtro de Pesquisa
-          </h3>
-        </div>
-        <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">Título/Descrição</label>
-            <input type="text" className="w-full border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500" />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">Área</label>
-            <input type="text" className="w-full border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500" />
-          </div>
-        </div>
-        <div className="px-4 py-3 bg-gray-50/50 border-t border-gray-100 flex justify-start gap-2">
-          <button className="bg-gray-200 text-gray-700 px-4 py-1.5 text-sm font-medium rounded-sm border border-gray-300 hover:bg-gray-300 transition-colors">
-            Limpar
-          </button>
-          <button className="bg-[#2563eb] text-white px-4 py-1.5 text-sm font-medium rounded-sm hover:bg-blue-700 transition-colors">
-            Pesquisar
-          </button>
-        </div>
       </div>
 
       {/* Table Box */}

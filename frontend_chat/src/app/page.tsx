@@ -103,9 +103,15 @@ export default function ChatPage() {
     else if (view === "chat") setView(selectedArea ? "assuntos" : "areas");
   };
 
-  // Formata texto (negrito + quebra de linha)
+  // Formata texto: negrito, quebra de linha e URLs clicáveis
   const fmt = (text: string) =>
-    text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br/>");
+    text
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\n/g, "<br/>")
+      .replace(
+        /(https?:\/\/[^\s<>"']+)/g,
+        '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:#006B3C;text-decoration:underline;word-break:break-all;">$1</a>'
+      );
 
   return (
     <>

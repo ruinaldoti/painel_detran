@@ -10,9 +10,13 @@ class Usuario(Base):
     __tablename__ = "usuarios"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    nome = Column(String, nullable=False, default="Admin")
     email = Column(String, unique=True, index=True, nullable=False)
     senha_hash = Column(String, nullable=False)
-    is_active = Column(Boolean, default=True)
+    perfil = Column(String, default="admin")
+    ativo = Column(Boolean, default=True)
+    criado_em = Column(DateTime, default=datetime.utcnow)
+    ultimo_acesso = Column(DateTime, nullable=True)
 
 class Documento(Base):
     __tablename__ = "documentos"

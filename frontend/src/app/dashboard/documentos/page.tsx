@@ -207,19 +207,6 @@ export default function DocumentosPage() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Título Arquivo *
-                  </label>
-                  <input
-                    type="text"
-                    value={titulo}
-                    onChange={(e) => setTitulo(e.target.value)}
-                    required
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                    placeholder="Ex: Manual do DETRAN v1"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Serviços *
                   </label>
                   <input
@@ -229,6 +216,19 @@ export default function DocumentosPage() {
                     required
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     placeholder="Ex: Atendimento, Jurídico..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Título Arquivo *
+                  </label>
+                  <input
+                    type="text"
+                    value={titulo}
+                    onChange={(e) => setTitulo(e.target.value)}
+                    required
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                    placeholder="Ex: Manual do DETRAN v1"
                   />
                 </div>
                 <div>

@@ -97,89 +97,116 @@ export default function DocumentosPage() {
   };
 
   return (
-    <div className="space-y-6 lg:max-w-6xl">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Documentos Indexados</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Nesta área você gerencia a base de arquivos em PDF do Chatbot.
-          </p>
-        </div>
+    <div className="w-full h-full flex flex-col p-4 md:p-6 space-y-6 max-w-[1400px] mx-auto">
+      
+      {/* Breadcrumbs */}
+      <div className="flex items-center text-sm font-medium text-blue-600 gap-1.5">
+        <span className="cursor-pointer hover:underline">Início</span>
+        <span className="text-gray-400">→</span>
+        <span className="text-gray-600">Documentos</span>
+      </div>
+
+      {/* Page Title & Button */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-800 uppercase tracking-tight">DOCUMENTOS INDEXADOS</h1>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center justify-center gap-2 rounded-lg bg-secondary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#008f7f] transition-colors"
+          className="rounded bg-[#2563eb] px-5 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 transition-colors"
         >
-          <Upload size={18} />
-          Upload de Documento
+          Novo
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        <div className="overflow-x-auto">
+      {/* Filtro de Pesquisa Box */}
+      <div className="bg-white border border-gray-200 rounded-sm shadow-sm flex flex-col">
+        <div className="border-b border-gray-100 px-4 py-3 bg-gray-50/50">
+          <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
+            <span className="text-xs">▼</span> Filtro de Pesquisa
+          </h3>
+        </div>
+        <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1">Título/Descrição</label>
+            <input type="text" className="w-full border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500" />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1">Área</label>
+            <input type="text" className="w-full border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500" />
+          </div>
+        </div>
+        <div className="px-4 py-3 bg-gray-50/50 border-t border-gray-100 flex justify-start gap-2">
+          <button className="bg-gray-200 text-gray-700 px-4 py-1.5 text-sm font-medium rounded-sm border border-gray-300 hover:bg-gray-300 transition-colors">
+            Limpar
+          </button>
+          <button className="bg-[#2563eb] text-white px-4 py-1.5 text-sm font-medium rounded-sm hover:bg-blue-700 transition-colors">
+            Pesquisar
+          </button>
+        </div>
+      </div>
+
+      {/* Table Box */}
+      <div className="bg-white border border-gray-200 rounded-sm shadow-sm border-t-[3px] border-t-orange-500 flex-1 flex flex-col overflow-hidden">
+        <div className="overflow-x-auto flex-1">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-white border-b border-gray-200">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Título
+                <th className="px-5 py-4 text-left text-xs font-bold text-blue-600">
+                  DESCRIÇÃO
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Área
+                <th className="px-5 py-4 text-left text-xs font-bold text-blue-600 w-1/4">
+                  ÁREA
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Assunto
+                <th className="px-5 py-4 text-left text-xs font-bold text-blue-600 w-1/4">
+                  ASSUNTO
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Arquivo
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Ações
+                <th className="px-5 py-4 text-right text-xs font-bold text-blue-600 w-24">
+                  AÇÕES
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
+            <tbody className="divide-y divide-gray-100 bg-white">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
                     <Loader2 className="mx-auto h-6 w-6 animate-spin text-gray-400" />
                     <p className="mt-2">Carregando documentos...</p>
                   </td>
                 </tr>
               ) : documents.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
-                    <FileText className="mx-auto h-8 w-8 text-gray-300" />
-                    <p className="mt-2 font-medium">Nenhum documento encontrado.</p>
-                    <p className="text-sm">Faça o upload do seu primeiro PDF.</p>
+                  <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
+                    <FileText className="mx-auto h-12 w-12 text-gray-300 mb-2" />
+                    <p className="font-medium">Nenhum documento encontrado.</p>
                   </td>
                 </tr>
               ) : (
                 documents.map((doc) => (
-                  <tr key={doc.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 w-1/4 align-middle">
-                      <div className="flex items-center">
-                        <FileText className="mr-3 h-5 w-5 text-gray-400 shrink-0" />
-                        <span className="font-medium text-gray-900 break-words">{doc.titulo || doc.nome_arquivo}</span>
-                      </div>
+                  <tr key={doc.id} className="even:bg-gray-50 hover:bg-blue-50/50 transition-colors">
+                    <td className="px-5 py-3 text-sm text-gray-800 break-words align-middle font-medium">
+                      {doc.titulo || doc.nome_arquivo}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 align-middle">
+                    <td className="px-5 py-3 text-sm text-gray-600 align-middle">
                       {doc.setor || "-"}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 w-1/3 align-middle">
-                      <span className="inline-block rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 break-words text-wrap">
-                        {doc.assunto || "Geral"}
-                      </span>
+                    <td className="px-5 py-3 text-sm text-gray-600 align-middle break-words">
+                      {doc.assunto || "Geral"}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-400 break-words max-w-[200px] align-middle">
-                      {doc.nome_arquivo}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium w-16 align-middle">
-                      <button
-                        onClick={() => handleDelete(doc.id, doc.titulo || doc.nome_arquivo)}
-                        className="text-red-500 hover:text-red-700 transition-colors p-2 rounded-full hover:bg-red-50"
-                        title="Excluir Documento"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                    <td className="px-5 py-3 text-right align-middle">
+                      <div className="flex justify-end gap-1">
+                        <button
+                          className="bg-gray-100 border border-gray-300 text-gray-600 hover:bg-gray-200 transition-colors p-1.5 rounded-sm"
+                          title="Detalhes"
+                        >
+                          <FileText size={14} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(doc.id, doc.titulo || doc.nome_arquivo)}
+                          className="bg-gray-100 border border-gray-300 text-red-500 hover:bg-red-50 hover:border-red-200 transition-colors p-1.5 rounded-sm"
+                          title="Excluir Documento"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

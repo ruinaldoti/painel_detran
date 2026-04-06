@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models import Usuario
 from auth_utils import verify_password, create_access_token, get_password_hash, decode_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from uuid import UUID
 from datetime import timedelta
 import traceback
@@ -15,14 +15,14 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 class UsuarioCreate(BaseModel):
     nome: str
-    email: EmailStr
+    email: str
     senha: str
     perfil: str = "admin"
 
 class UsuarioResponse(BaseModel):
     id: UUID
     nome: str
-    email: EmailStr
+    email: str
     perfil: str
     ativo: bool
 

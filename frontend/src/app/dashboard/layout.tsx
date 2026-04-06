@@ -1,64 +1,103 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
+import { LayoutDashboard, FileText, Users, LogOut, Menu, X } from "lucide-react";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
+  const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("access_token");
     if (!token) {
-      router.push("/login");
+      router.push("/");
+    } else {
+      setIsAuthenticated(true);
     }
   }, [router]);
 
-  if (!mounted) return null;
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    router.push("/");
+  };
+
+  if (!isAuthenticated) {
+    return null; // Return empty until auth is verified
+  }
+
+  const navigation = [
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Documentos", href: "/dashboard/documentos", icon: FileText },
+    { name: "Usuários", href: "/dashboard/usuarios", icon: Users },
+  ];
 
   return (
-    <div className="min-h-screen bg-slate-950 flex text-slate-100">
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-64 border-r border-slate-800 bg-slate-900/50 flex flex-col p-4">
-        <div className="py-4 mb-4 border-b border-slate-800">
-          <h1 className="text-xl font-bold text-white tracking-tight">Painel Detran</h1>
-          <p className="text-xs text-blue-400 mt-1">RAG & AI Control</p>
-        </div>
-        
-        <nav className="flex-1 space-y-2">
-          <Link href="/dashboard" className={`flex items-center px-4 py-3 rounded-lg transition-colors ${pathname === '/dashboard' ? 'bg-blue-600/20 text-blue-400 border border-blue-500/20' : 'hover:bg-slate-800/80 text-slate-400'}`}>
-            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-            Visão Geral
-          </Link>
-          
-          <Link href="/dashboard/chat" className={`flex items-center px-4 py-3 rounded-lg transition-colors ${pathname.includes('/chat') ? 'bg-blue-600/20 text-blue-400 border border-blue-500/20' : 'hover:bg-slate-800/80 text-slate-400'}`}>
-            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
-            Chat IA
-          </Link>
-          
-          <Link href="/dashboard/documents" className={`flex items-center px-4 py-3 rounded-lg transition-colors ${pathname.includes('/documents') ? 'bg-blue-600/20 text-blue-400 border border-blue-500/20' : 'hover:bg-slate-800/80 text-slate-400'}`}>
-            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-            Base de Conhecimento
-          </Link>
-        </nav>
-        
-        <div className="pt-4 border-t border-slate-800">
-          <button 
-             onClick={() => { localStorage.removeItem("token"); router.push("/login"); }}
-             className="flex items-center px-4 py-2 w-full text-left text-slate-400 hover:text-red-400 transition-colors rounded-lg hover:bg-slate-800/80"
-          >
-            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-            Sair
+      <aside
+        className={`${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } fixed inset-y-0 left-0 z-50 w-64 bg-[#111827] text-white transition-transform duration-300 ease-in-out lg:static lg:translate-x-0`}
+      >
+        <div className="flex h-16 items-center justify-between bg-[#1f2937] px-4">
+          <span className="text-xl font-bold tracking-wider">DETRAN-CE</span>
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-gray-300 hover:text-white">
+            <X size={24} />
           </button>
         </div>
+        <nav className="mt-8 space-y-2 px-4">
+          {navigation.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`flex items-center gap-3 rounded-lg px-4 py-3 font-medium transition-colors ${
+                  isActive
+                    ? "bg-primary text-white"
+                    : "text-gray-300 hover:bg-[#374151] hover:text-white"
+                }`}
+              >
+                <item.icon size={20} />
+                {item.name}
+              </Link>
+            );
+          })}
+        </nav>
       </aside>
-      
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {children}
+
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col overflow-hidden">
+        {/* Topbar */}
+        <header className="flex h-16 items-center justify-between border-b bg-white px-4 md:px-8 shadow-sm">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden text-gray-500 hover:text-gray-700"
+            >
+              <Menu size={24} />
+            </button>
+            <h2 className="text-lg font-semibold text-gray-800 hidden sm:block">
+               Conhecimento RAG
+            </h2>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-[#cc4405] transition-colors"
+          >
+            <LogOut size={16} />
+            Sair
+          </button>
+        </header>
+
+        {/* Dynamic Page Content */}
+        <div className="flex-1 overflow-y-auto p-4 md:p-8">
+          {children}
+        </div>
       </main>
     </div>
   );

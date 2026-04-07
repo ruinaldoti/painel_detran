@@ -22,6 +22,19 @@ class Area(Base):
     __tablename__ = "area"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     area = Column(String(150), nullable=False, unique=True)
+    
+    assuntos = relationship("Assunto", backref="area_rel", cascade="all, delete-orphan")
+
+class Assunto(Base):
+    __tablename__ = "assuntos"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id_area = Column(UUID(as_uuid=True), ForeignKey("area.id"), nullable=False)
+    nome = Column(String(150), nullable=False)
+    contexto = Column(Text, nullable=False)
+    embedding = Column(Vector(768))
+    criado_em = Column(DateTime, default=datetime.utcnow)
+
 
 class Documento(Base):
     __tablename__ = "documentos"

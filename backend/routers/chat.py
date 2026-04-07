@@ -58,30 +58,25 @@ def chat_with_bot(request: ChatRequest, db: Session = Depends(get_db)):
     }
 
 
+from services.universo_detran import identificar_universo_detran
+
 def _try_save_duvida(query: str, query_vector: list[float], db: Session) -> None:
     """
-    Verifica se a pergunta é relacionada a alguma área cadastrada.
+    Verifica se a pergunta é relacionada ao universo Detran.
     Se sim, salva na tabela `duvidas` com status 'pendente'.
     Se não (fora do escopo), descarta silenciosamente.
-
-    Erros são capturados para nunca impactar a resposta ao usuário.
     """
     try:
-        areas = db.query(Area).all()
-        if not areas:
-            return
+        pertence, id_area = identificar_universo_detran(query, db)
 
-        area_id, similarity = find_related_area(query_vector, areas)
-
-        if area_id:
+        if pertence and id_area:
             duvida = Duvida(
                 duvida=query,
-                id_area=area_id,
+                id_area=id_area,
                 status="pendente",
                 origem="chat_publico",
             )
             db.add(duvida)
             db.commit()
     except Exception:
-        # Garantia: nunca deixar erro de logging afetar o usuário
         db.rollback()

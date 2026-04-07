@@ -27,6 +27,7 @@ export default function DocumentosPage() {
   const [idArea, setIdArea] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [areas, setAreas] = useState<Area[]>([]);
+  const [assuntosDrop, setAssuntosDrop] = useState<any[]>([]);
 
   const API_URL = "https://api.iairuinaldo.com.br";
 
@@ -56,6 +57,22 @@ export default function DocumentosPage() {
     fetchDocuments();
     fetchAreas();
   }, []);
+
+  // Busca Assuntos dinamicamente quando a Área é selecionada
+  useEffect(() => {
+    if (!idArea) {
+      setAssuntosDrop([]);
+      setAssunto("");
+      return;
+    }
+    fetch(`${API_URL}/assuntos/area/${idArea}`)
+      .then(res => res.json())
+      .then(data => {
+        setAssuntosDrop(Array.isArray(data) ? data : []);
+        setAssunto(""); // reset assunto when area changes
+      })
+      .catch(() => setAssuntosDrop([]));
+  }, [idArea]);
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -255,14 +272,20 @@ export default function DocumentosPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Assunto do Arquivo *
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={assunto}
                     onChange={(e) => setAssunto(e.target.value)}
                     required
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                    placeholder="Ex: CNH, Multas, IPVA..."
-                  />
+                    disabled={!idArea || assuntosDrop.length === 0}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white"
+                  >
+                    <option value="">
+                      {!idArea ? "Selecione uma área primeiro..." : (assuntosDrop.length === 0 ? "Nenhum assunto nesta área..." : "Selecione um assunto...")}
+                    </option>
+                    {assuntosDrop.map((a) => (
+                      <option key={a.id} value={a.assunto}>{a.assunto}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">

@@ -70,14 +70,21 @@ def delete_area(area_id: str, db: Session = Depends(get_db)):
 
 @router.get("/{area_id}/assuntos", response_model=list[DocumentoTituloResponse])
 def list_assuntos_by_area(area_id: str, db: Session = Depends(get_db)):
+    # Verifica quais Assuntos já tem pelo menos um Documento (arquivo) associado (vetorizado)
+    docs_area = db.query(Documento.assunto).filter(Documento.id_area == area_id).all()
+    assuntos_vetorizados = {d[0].strip().lower() for d in docs_area if d[0]}
+
     assuntos = (
         db.query(Assunto)
         .filter(Assunto.id_area == area_id)
         .order_by(Assunto.nome)
         .all()
     )
-    # Mapeia os dados do modelo `Assunto` para a resposta legada
-    return [
-        DocumentoTituloResponse(id=a.id, titulo=a.nome, assunto=a.nome)
-        for a in assuntos
-    ]
+    
+    # Mapeia apenas os que já têm documento associado
+    result = []
+    for a in assuntos:
+        if a.nome.strip().lower() in assuntos_vetorizados:
+            result.append(DocumentoTituloResponse(id=a.id, titulo=a.nome, assunto=a.nome))
+            
+    return result

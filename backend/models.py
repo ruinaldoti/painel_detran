@@ -8,7 +8,7 @@ from database import Base
 
 class Usuario(Base):
     __tablename__ = "usuarios"
-    
+
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     nome = Column(String, nullable=False, default="Admin")
     email = Column(String, unique=True, index=True, nullable=False)
@@ -44,3 +44,21 @@ class DocumentoChunk(Base):
     criado_em = Column(DateTime, default=datetime.utcnow)
 
     documento = relationship("Documento", backref="chunks")
+
+class Duvida(Base):
+    """Perguntas do chat público que o RAG não conseguiu responder."""
+    __tablename__ = "duvidas"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    duvida = Column(Text, nullable=False)
+    resposta = Column(Text, nullable=True)
+    id_area = Column(UUID(as_uuid=True), ForeignKey("area.id"), nullable=True)
+    status = Column(String(50), nullable=False, default="pendente")
+    criado_em = Column(DateTime, default=datetime.utcnow)
+    respondido_em = Column(DateTime, nullable=True)
+    origem = Column(String(100), nullable=False, default="chat_publico")
+    # FK para o documento criado no RAG ao responder (None = ainda não ingerido)
+    documento_id = Column(UUID(as_uuid=True), ForeignKey("documentos.id"), nullable=True)
+
+    area = relationship("Area", backref="duvidas")
+

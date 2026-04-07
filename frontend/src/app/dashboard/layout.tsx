@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { LayoutDashboard, FileText, Users, LogOut, Menu, X, Layers } from "lucide-react";
+import { LayoutDashboard, FileText, Users, LogOut, Menu, X, Layers, MessageCircleQuestion } from "lucide-react";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -12,6 +12,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userName, setUserName] = useState("USUÁRIO DO SISTEMA");
   const [userProfile, setUserProfile] = useState("ADMINISTRADOR");
+  const [pendentesCount, setPendentesCount] = useState<number>(0);
+
+  const fetchPendentes = async () => {
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) return;
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/duvidas/stats`, {
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPendentesCount(data.pendentes || 0);
+      }
+    } catch (e) {
+      // silent fail
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -23,8 +40,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       const profile = localStorage.getItem("user_perfil");
       if (name) setUserName(name);
       if (profile) setUserProfile(profile);
+      fetchPendentes();
     }
   }, [router]);
+
+  useEffect(() => {
+    const handleDuvidasChanged = () => fetchPendentes();
+    // Escuta o evento local do page.tsx para atualizar o menu em tempo real
+    window.addEventListener("duvidas_changed", handleDuvidasChanged);
+    return () => window.removeEventListener("duvidas_changed", handleDuvidasChanged);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");
@@ -39,6 +64,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Documentos", href: "/dashboard/documentos", icon: FileText },
     { name: "Áreas", href: "/dashboard/areas", icon: Layers },
+    { name: "Dúvidas", href: "/dashboard/duvidas", icon: MessageCircleQuestion },
     { name: "Usuários", href: "/dashboard/usuarios", icon: Users },
   ];
 
@@ -69,8 +95,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     : "text-green-50 border-transparent hover:bg-[#0c803c] hover:text-white"
                 }`}
               >
-                <item.icon size={18} />
-                {item.name}
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-3">
+                    <item.icon size={18} />
+                    {item.name}
+                  </div>
+                  {item.name === "Dúvidas" && pendentesCount > 0 && (
+                    <span className="flex items-center justify-center rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-bold text-white shadow-sm ring-1 ring-amber-600/50">
+                      {pendentesCount} {pendentesCount === 1 ? 'pendente' : 'pendentes'}
+                    </span>
+                  )}
+                </div>
               </Link>
             );
           })}

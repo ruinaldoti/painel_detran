@@ -1,42 +1,108 @@
+import math
 import os
 from google import genai
 from google.genai import types
 
-# Using the new Google GenAI SDK interface.
-# Note: google-genai package gets initialized without API explicit passing if environment GOOGLE_API_KEY is available.
-# We'll configure it directly using the env variable.
-
 API_KEY = os.getenv("GEMINI_API_KEY", "")
+
+# Frase exata que o LLM usa quando não encontra resposta no contexto.
+# Usada para detectar se a pergunta ficou sem resposta.
+_NOT_FOUND_MARKER = "Não encontrei essa informação nos nossos documentos"
+
+# Threshold de similaridade cosine para associar uma pergunta a uma área.
+# Abaixo disso, a pergunta é considerada fora do escopo e não é salva.
+_AREA_SIMILARITY_THRESHOLD = 0.40
+
 
 def get_client():
     from google import genai
     return genai.Client(api_key=API_KEY)
 
+
 def generate_embedding(text: str) -> list[float]:
     client = get_client()
-    # gemini-embedding-001 com precisão de 768 dimensões devido ao PgVector
+    # gemini-embedding-001 com 768 dimensões (para compatibilidade com pgvector)
     response = client.models.embed_content(
-        model="gemini-embedding-001",   
+        model="gemini-embedding-001",
         contents=text,
         config=types.EmbedContentConfig(output_dimensionality=768)
     )
     return response.embeddings[0].values
 
-def generate_chat_response(query: str, context: str) -> str:
+
+def _cosine_similarity(vec1: list[float], vec2: list[float]) -> float:
+    """Calcula cosine similarity entre dois vetores (sem numpy)."""
+    dot = sum(a * b for a, b in zip(vec1, vec2))
+    norm1 = math.sqrt(sum(a * a for a in vec1))
+    norm2 = math.sqrt(sum(b * b for b in vec2))
+    if norm1 == 0 or norm2 == 0:
+        return 0.0
+    return dot / (norm1 * norm2)
+
+
+def find_related_area(
+    query_vector: list[float],
+    areas: list,
+) -> tuple[str | None, float]:
+    """
+    Identifica a área mais relacionada à pergunta usando embedding similarity.
+
+    Retorna (area_id, similarity) se encontrar área com similarity ≥ threshold,
+    ou (None, best_similarity) caso contrário.
+
+    Parâmetros:
+        query_vector: embedding já gerado da pergunta do usuário
+        areas: lista de objetos Area (com .id e .area)
+    """
+    best_area_id: str | None = None
+    best_similarity: float = 0.0
+
+    for area in areas:
+        try:
+            area_vector = generate_embedding(area.area)
+            similarity = _cosine_similarity(query_vector, area_vector)
+            if similarity > best_similarity:
+                best_similarity = similarity
+                best_area_id = str(area.id)
+        except Exception:
+            # Se falhar ao gerar embedding de uma área, continua com as outras
+            continue
+
+    if best_similarity >= _AREA_SIMILARITY_THRESHOLD:
+        return best_area_id, best_similarity
+
+    return None, best_similarity
+
+
+def generate_chat_response(query: str, context: str) -> dict:
+    """
+    Gera resposta do assistente virtual com base no contexto RAG.
+
+    Retorna:
+        dict com:
+            "reply"    (str)  — texto da resposta ao usuário
+            "answered" (bool) — True se o LLM respondeu com base no contexto,
+                                False se não encontrou informação
+    """
     client = get_client()
-    
+
+    # Sem contexto: definitivamente não respondeu
     if not context.strip():
-        return (
-            "Olá! Não encontrei informações sobre esse assunto nos nossos documentos ainda. "
-            "Estou em processo de aprendizado! 😊 \n"
-            "Por favor, entre em contato com o DETRAN-CE pelo canal oficial para mais esclarecimentos."
-        )
-    
+        return {
+            "reply": (
+                "Olá! Não encontrei informações sobre esse assunto nos nossos "
+                "documentos ainda. Estou em processo de aprendizado! 😊\n"
+                "Por favor, entre em contato com o DETRAN-CE pelo canal oficial "
+                "para mais esclarecimentos."
+            ),
+            "answered": False,
+        }
+
     prompt = f"""Você é o assistente virtual oficial do DETRAN-CE.
 
 INSTRUÇÕES OBRIGATÓRIAS:
 1. Responda APENAS com base no CONTEXTO FORNECIDO abaixo.
-2. Se a informação solicitada NÃO estiver no contexto, responda exatamente: 
+2. Se a informação solicitada NÃO estiver no contexto, responda exatamente:
    "Não encontrei essa informação nos nossos documentos ainda. Estou em processo de aprendizado! 😊 Por favor, entre em contato com o DETRAN-CE pelo canal oficial."
 3. NUNCA invente leis, regulamentos, valores, prazos ou procedimentos.
 4. Seja sempre educado, cordial e objetivo.
@@ -53,4 +119,8 @@ PERGUNTA DO USUÁRIO:
         model="gemini-2.5-flash",
         contents=prompt
     )
-    return response.text
+
+    reply = response.text
+    answered = _NOT_FOUND_MARKER not in reply
+
+    return {"reply": reply, "answered": answered}

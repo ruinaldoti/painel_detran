@@ -113,15 +113,23 @@ export default function AreasPage() {
   const handleDeleteArea = async (id: string, nome: string) => {
     if (!window.confirm(`Excluir a área "${nome}"?\n\nAtenção: Isso excluirá todos os Assuntos associados.`)) return;
     try {
-      const response = await fetch(`${API_URL}/areas/${id}`, { method: "DELETE" });
+      const response = await fetch(`${API_URL}/areas/${id}`, { 
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" }
+      });
       if (response.ok) {
         if (expandedAreaId === id) setExpandedAreaId(null);
         await fetchAreas();
       } else {
-        alert("Erro ao excluir a área.");
+        let msg = "Erro desconhecido";
+        try {
+          const data = await response.json();
+          msg = data.detail || msg;
+        } catch(e) {}
+        alert(`Erro ao excluir a área: ${msg} (Status: ${response.status})`);
       }
-    } catch {
-      alert("Erro de conexão ao excluir.");
+    } catch (error: any) {
+      alert(`Erro de conexão ao excluir: ${error.message || error}`);
     }
   };
 

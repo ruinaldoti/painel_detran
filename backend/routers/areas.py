@@ -50,12 +50,19 @@ def create_area(body: AreaCreate, db: Session = Depends(get_db)):
 
 @router.delete("/{area_id}", status_code=200)
 def delete_area(area_id: str, db: Session = Depends(get_db)):
-    area = db.query(Area).filter(Area.id == area_id).first()
-    if not area:
-        raise HTTPException(status_code=404, detail="Área não encontrada")
-    db.delete(area)
-    db.commit()
-    return {"message": "Área excluída com sucesso"}
+    try:
+        area = db.query(Area).filter(Area.id == area_id).first()
+        if not area:
+            raise HTTPException(status_code=404, detail="Área não encontrada")
+        db.delete(area)
+        db.commit()
+        return {"message": "Área excluída com sucesso"}
+    except Exception as e:
+        db.rollback()
+        # Captura erro de FK constraint (como Dúvidas associadas a Área)
+        if "Foreign key violation" in str(e) or "psycopg2.errors.ForeignKeyViolation" in str(e) or "IntegrityError" in str(type(e).__name__):
+            raise HTTPException(status_code=400, detail="Não é possível excluir esta Área pois existem Dúvidas Pendentes ou Documentos atrelados a ela. Exclua eles primeiro.")
+        raise HTTPException(status_code=500, detail=f"Erro banco de dados: {str(e)}")
 
 # ──────────────────── ASSUNTOS VIA DOCUMENTOS ────────────────────
 # Retorna os títulos dos documentos vinculados à área.

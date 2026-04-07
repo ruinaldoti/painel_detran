@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from database import get_db
-from models import Area, Documento
+from models import Area, Documento, Assunto
 from uuid import UUID
 import traceback
 
@@ -64,16 +64,20 @@ def delete_area(area_id: str, db: Session = Depends(get_db)):
             raise HTTPException(status_code=400, detail="Não é possível excluir esta Área pois existem Dúvidas Pendentes ou Documentos atrelados a ela. Exclua eles primeiro.")
         raise HTTPException(status_code=500, detail=f"Erro banco de dados: {str(e)}")
 
-# ──────────────────── ASSUNTOS VIA DOCUMENTOS ────────────────────
-# Retorna os títulos dos documentos vinculados à área.
-# O campo 'titulo' da tabela documentos é usado como assunto no chat.
+# ──────────────────── ASSUNTOS ────────────────────
+# Retorna os nomes dos assuntos vinculados à área (nova tabela Assuntos)
+# O modelo do frontend (DocumentoTituloResponse) ainda espera o campo 'titulo', então mapeamos nome -> titulo.
 
 @router.get("/{area_id}/assuntos", response_model=list[DocumentoTituloResponse])
 def list_assuntos_by_area(area_id: str, db: Session = Depends(get_db)):
-    docs = (
-        db.query(Documento)
-        .filter(Documento.id_area == area_id)
-        .order_by(Documento.titulo)
+    assuntos = (
+        db.query(Assunto)
+        .filter(Assunto.id_area == area_id)
+        .order_by(Assunto.nome)
         .all()
     )
-    return docs
+    # Mapeia os dados do modelo `Assunto` para a resposta legada
+    return [
+        DocumentoTituloResponse(id=a.id, titulo=a.nome, assunto=a.nome)
+        for a in assuntos
+    ]

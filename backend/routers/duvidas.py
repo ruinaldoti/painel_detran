@@ -23,7 +23,7 @@ class EditarRequest(BaseModel):
 
 # ──────────────────────────── Serializer ────────────────────────────
 
-def _serialize(duvida: Duvida) -> dict:
+def _serialize(duvida: Duvida, is_ingerido: bool = False) -> dict:
     return {
         "id": str(duvida.id),
         "duvida": duvida.duvida,
@@ -34,8 +34,7 @@ def _serialize(duvida: Duvida) -> dict:
         "criado_em": duvida.criado_em,
         "respondido_em": duvida.respondido_em,
         "origem": duvida.origem,
-        "documento_id": str(duvida.documento_id) if duvida.documento_id else None,
-        "ingerido_no_rag": duvida.documento_id is not None,
+        "ingerido_no_rag": is_ingerido,
     }
 
 
@@ -88,23 +87,22 @@ def _ingest_into_rag(duvida: Duvida, resposta: str, db: Session) -> Documento:
 def _remove_from_rag(duvida: Duvida, db: Session) -> None:
     """
     Remove Documento + DocumentoChunks associados a esta dúvida do RAG.
-    Define duvida.documento_id = None após remoção.
+    Mapeia pelo nome_arquivo da dúvida.
     Deve ser chamado dentro de uma transação aberta.
     """
-    if not duvida.documento_id:
+    nome_arquivo = f"duvida_{str(duvida.id)}.txt"
+    doc = db.query(Documento).filter(Documento.nome_arquivo == nome_arquivo).first()
+    
+    if not doc:
         return
 
     # Remover chunks primeiro (integridade referencial)
     db.query(DocumentoChunk).filter(
-        DocumentoChunk.documento_id == duvida.documento_id
+        DocumentoChunk.documento_id == doc.id
     ).delete(synchronize_session=False)
 
     # Remover documento
-    doc = db.query(Documento).filter(Documento.id == duvida.documento_id).first()
-    if doc:
-        db.delete(doc)
-
-    duvida.documento_id = None
+    db.delete(doc)
 
 
 # ──────────────────────────── Endpoints ────────────────────────────
@@ -151,7 +149,13 @@ def list_duvidas(
         q = q.filter(Duvida.criado_em >= cutoff)
 
     duvidas = q.order_by(Duvida.criado_em.desc()).offset(skip).limit(limit).all()
-    return [_serialize(d) for d in duvidas]
+    
+    # Preload para verificar se estão ingeridos (buscar titulos de documentos)
+    nomes_arquivos = [f"duvida_{str(d.id)}.txt" for d in duvidas]
+    docs_existentes = db.query(Documento.nome_arquivo).filter(Documento.nome_arquivo.in_(nomes_arquivos)).all()
+    docs_set = {d[0] for d in docs_existentes}
+    
+    return [_serialize(d, f"duvida_{str(d.id)}.txt" in docs_set) for d in duvidas]
 
 
 @router.get("/{duvida_id}")
@@ -164,7 +168,10 @@ def get_duvida(
     duvida = db.query(Duvida).filter(Duvida.id == duvida_id).first()
     if not duvida:
         raise HTTPException(status_code=404, detail="Dúvida não encontrada")
-    return _serialize(duvida)
+        
+    nome_arquivo = f"duvida_{str(duvida.id)}.txt"
+    is_ingerido = db.query(Documento).filter(Documento.nome_arquivo == nome_arquivo).first() is not None
+    return _serialize(duvida, is_ingerido)
 
 
 @router.put("/{duvida_id}/responder")
@@ -191,17 +198,15 @@ def responder_duvida(
         duvida.respondido_em = datetime.utcnow()
 
         # 2. Se duvida já estava ingerida no RAG, remover versão antiga
-        if duvida.documento_id:
-            _remove_from_rag(duvida, db)
+        _remove_from_rag(duvida, db)
 
         # 3. Ingerir novo par Q/A no RAG
         doc = _ingest_into_rag(duvida, body.resposta.strip(), db)
-        duvida.documento_id = doc.id
 
         # 4. Commit atômico (tudo ou nada)
         db.commit()
         db.refresh(duvida)
-        return _serialize(duvida)
+        return _serialize(duvida, True)
 
     except HTTPException:
         raise
@@ -236,16 +241,14 @@ def editar_duvida(
         duvida.respondido_em = datetime.utcnow()
 
         # 2. Remover versão antiga do RAG
-        if duvida.documento_id:
-            _remove_from_rag(duvida, db)
+        _remove_from_rag(duvida, db)
 
         # 3. Re-ingerir com nova resposta
         doc = _ingest_into_rag(duvida, body.resposta.strip(), db)
-        duvida.documento_id = doc.id
 
         db.commit()
         db.refresh(duvida)
-        return _serialize(duvida)
+        return _serialize(duvida, True)
 
     except HTTPException:
         raise

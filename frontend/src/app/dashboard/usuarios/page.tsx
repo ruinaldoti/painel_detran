@@ -12,6 +12,7 @@ interface Usuario {
 }
 
 export default function UsuariosPage() {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.iairuinaldo.com.br";
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +43,7 @@ export default function UsuariosPage() {
     setError(null);
     try {
       const token = localStorage.getItem("access_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/usuarios/`, {
+      const res = await fetch(`${API_URL}/usuarios/`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
@@ -115,7 +116,7 @@ export default function UsuariosPage() {
 
     try {
       const token = localStorage.getItem("access_token");
-      const url = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/usuarios/${editingUserId || ""}`;
+      const url = `${API_URL}/usuarios/${editingUserId || ""}`;
       const method = editingUserId ? "PUT" : "POST";
 
       const payload = editingUserId
@@ -154,7 +155,7 @@ export default function UsuariosPage() {
 
     try {
       const token = localStorage.getItem("access_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/usuarios/${editingUserId}/senha`, {
+      const res = await fetch(`${API_URL}/usuarios/${editingUserId}/senha`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -179,7 +180,7 @@ export default function UsuariosPage() {
 
     try {
       const token = localStorage.getItem("access_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/usuarios/${id}`, {
+      const res = await fetch(`${API_URL}/usuarios/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });

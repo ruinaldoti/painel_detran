@@ -50,7 +50,9 @@ def chat_with_bot(request: ChatRequest, db: Session = Depends(get_db)):
 
     # 5. Se não respondeu → tentar salvar na tabela duvidas
     if not answered:
-        _try_save_duvida(query=query, query_vector=query_vector, db=db, area_nome=request.area)
+        saved = _try_save_duvida(query=query, query_vector=query_vector, db=db, area_nome=request.area)
+        if saved:
+            answer = "No momento não tenho a resposta exata para a sua dúvida, mas guardei ela aqui com a nossa equipe! Quando você voltar da próxima vez, já poderei responder. 😊"
 
     return {
         "reply": answer,
@@ -60,7 +62,7 @@ def chat_with_bot(request: ChatRequest, db: Session = Depends(get_db)):
 
 from services.universo_detran import identificar_universo_detran
 
-def _try_save_duvida(query: str, query_vector: list[float], db: Session, area_nome: str | None = None) -> None:
+def _try_save_duvida(query: str, query_vector: list[float], db: Session, area_nome: str | None = None) -> bool:
     """
     Verifica se a pergunta é relacionada ao universo Detran.
     Se sim, salva na tabela `duvidas` com status 'pendente'.
@@ -101,8 +103,12 @@ def _try_save_duvida(query: str, query_vector: list[float], db: Session, area_no
             )
             db.add(duvida)
             db.commit()
+            return True
+            
+        return False
     except Exception as e:
         import traceback
         traceback.print_exc()
         print(f"Erro ao salvar duvida: {e}")
         db.rollback()
+        return False

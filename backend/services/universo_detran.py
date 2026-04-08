@@ -24,9 +24,9 @@ def identificar_universo_detran(pergunta: str, db: Session, threshold: float = 0
             a.id_area,
             a.nome,
             a.contexto,
-            1 - (a.embedding <=> :embedding::vector(768)) AS similaridade
+            1 - (a.embedding <=> CAST(:embedding AS vector(768))) AS similaridade
         FROM public.assuntos a
-        ORDER BY a.embedding <=> :embedding::vector(768)
+        ORDER BY a.embedding <=> CAST(:embedding AS vector(768))
         LIMIT 1
     """)
     

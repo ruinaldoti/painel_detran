@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, KeyRound, X } from "lucide-react";
+import { Plus, Pencil, Trash2, KeyRound, X, Users } from "lucide-react";
 
 interface Usuario {
   id: string;

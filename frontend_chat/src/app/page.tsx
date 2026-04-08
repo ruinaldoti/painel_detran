@@ -8,7 +8,7 @@ const API_URL = "https://api.iairuinaldo.com.br";
 interface Area { id: string; area: string }
 interface Documento { id: string; titulo: string; assunto: string }
 type Message = { role: "user" | "bot"; text: string };
-type ChatView = "areas" | "assuntos" | "chat";
+type ChatView = "areas" | "chat";
 
 export default function ChatPage() {
   const [isOpen, setIsOpen] = useState(false);

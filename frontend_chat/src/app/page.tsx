@@ -38,11 +38,18 @@ export default function ChatPage() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
-  // Ao clicar numa área, busca os documentos vinculados
-  const handleSelectArea = async (area: Area) => {
+  const [expandedAreaId, setExpandedAreaId] = useState<string | null>(null);
+
+  // Ao clicar numa área, alterna o accordion e busca os documentos vinculados
+  const toggleArea = async (area: Area) => {
+    if (expandedAreaId === area.id) {
+      setExpandedAreaId(null);
+      return;
+    }
+    
+    setExpandedAreaId(area.id);
     setSelectedArea(area);
     setLoadingDocs(true);
-    setView("assuntos");
     try {
       const res = await fetch(`${API_URL}/areas/${area.id}/assuntos`);
       setDocumentos(res.ok ? await res.json() : []);
@@ -99,8 +106,7 @@ export default function ChatPage() {
 
   // Botão Voltar
   const handleBack = () => {
-    if (view === "assuntos") setView("areas");
-    else if (view === "chat") setView(selectedArea ? "assuntos" : "areas");
+    if (view === "chat") setView("areas");
   };
 
   // Formata texto: negrito, quebra de linha e URLs clicáveis
@@ -133,13 +139,13 @@ export default function ChatPage() {
         {isOpen && (
           <div className="w-[370px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200" style={{ height: "520px" }}>
 
-            {/* Header */}
-            <div className="bg-[#006B3C] border-b-4 border-[#E8520A] px-4 py-3 flex items-center gap-3">
-              {(view === "assuntos" || view === "chat") && (
-                <button onClick={handleBack} className="text-white/80 hover:text-white transition-colors shrink-0">
-                  <ArrowLeft size={18} />
-                </button>
-              )}
+              {/* Header */}
+              <div className="bg-[#006B3C] border-b-4 border-[#E8520A] px-4 py-3 flex items-center gap-3">
+                {view === "chat" && (
+                  <button onClick={handleBack} className="text-white/80 hover:text-white transition-colors shrink-0">
+                    <ArrowLeft size={18} />
+                  </button>
+                )}
               <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0">
                 <Bot size={18} className="text-white" />
               </div>
@@ -155,7 +161,7 @@ export default function ChatPage() {
             {/* Body */}
             <div className="flex-1 overflow-y-auto overflow-x-hidden bg-[#f7f7f7]">
 
-              {/* VIEW: ÁREAS */}
+              {/* VIEW: ÁREAS (Accordion) */}
               {view === "areas" && (
                 <div className="p-4 space-y-3">
                   <div
@@ -169,46 +175,50 @@ export default function ChatPage() {
                     <p className="text-xs text-gray-400 text-center py-4">Carregando...</p>
                   ) : (
                     areas.map(a => (
-                      <button
-                        key={a.id}
-                        onClick={() => handleSelectArea(a)}
-                        className="w-full text-left bg-white hover:bg-green-50 border border-gray-200 hover:border-green-300 rounded-xl px-4 py-3 flex items-center justify-between text-sm font-medium text-gray-800 transition-all shadow-sm"
-                      >
-                        <span>{a.area}</span>
-                        <ChevronRight size={16} className="text-gray-400" />
-                      </button>
-                    ))
-                  )}
-                </div>
-              )}
+                      <div key={a.id} className="flex flex-col mb-1">
+                        <button
+                          onClick={() => toggleArea(a)}
+                          className={`w-full text-left bg-white hover:bg-green-50 border hover:border-green-300 rounded-xl px-4 py-3 flex items-center justify-between text-sm transition-all shadow-sm ${
+                            expandedAreaId === a.id ? "border-green-300 text-[#006B3C] font-semibold" : "border-gray-200 text-gray-800 font-medium"
+                          }`}
+                        >
+                          <span>{a.area}</span>
+                          <ChevronRight 
+                             size={16} 
+                             className={`text-gray-400 transition-transform duration-300 ${expandedAreaId === a.id ? 'rotate-90' : ''}`} 
+                          />
+                        </button>
 
-              {/* VIEW: DOCUMENTOS (ASSUNTOS) */}
-              {view === "assuntos" && selectedArea && (
-                <div className="p-4 space-y-3">
-                  <div className="inline-block bg-[#006B3C] text-white text-xs font-semibold px-3 py-1.5 rounded-full">
-                    📂 {selectedArea.area}
-                  </div>
-                  <p className="text-xs text-gray-500 leading-relaxed px-1">
-                    Selecione um assunto ou <strong>digite sua dúvida</strong> abaixo:
-                  </p>
-                  {loadingDocs ? (
-                    <div className="flex justify-center py-6">
-                      <Loader2 size={20} className="animate-spin text-gray-400" />
-                    </div>
-                  ) : documentos.length === 0 ? (
-                    <p className="text-xs text-gray-400 text-center py-6 bg-white rounded-xl border border-gray-100 shadow-sm">
-                      Nenhum documento cadastrado nesta área ainda.
-                    </p>
-                  ) : (
-                    documentos.map(doc => (
-                      <button
-                        key={doc.id}
-                        onClick={() => handleSelectDocumento(doc)}
-                        className="w-full text-left bg-white hover:bg-green-50 border border-gray-200 hover:border-green-300 rounded-xl px-4 py-2.5 flex items-center gap-2 text-sm text-gray-700 transition-all shadow-sm"
-                      >
-                        <span className="text-[#E8520A] font-bold text-xs shrink-0">+</span>
-                        <span>{doc.titulo}</span>
-                      </button>
+                        {/* Accordion Content */}
+                        <div 
+                          className={`overflow-hidden transition-all duration-300 ${
+                            expandedAreaId === a.id ? "max-h-[800px] mt-2 opacity-100" : "max-h-0 opacity-0"
+                          }`}
+                        >
+                          <div className="p-2 space-y-1.5 border-l-2 border-[#006B3C] border-opacity-30 ml-3">
+                            {loadingDocs && expandedAreaId === a.id ? (
+                              <div className="flex justify-center py-4">
+                                <Loader2 size={18} className="animate-spin text-[#006B3C]" />
+                              </div>
+                            ) : expandedAreaId === a.id && documentos.length === 0 ? (
+                              <p className="text-xs text-gray-400 py-3 text-center border bg-white border-gray-100 rounded-lg shadow-sm">
+                                Nenhum assunto cadastrado nesta área.
+                              </p>
+                            ) : expandedAreaId === a.id ? (
+                              documentos.map(doc => (
+                                <button
+                                  key={doc.id}
+                                  onClick={() => handleSelectDocumento(doc)}
+                                  className="w-full text-left bg-white hover:bg-green-50 border border-gray-100 hover:border-green-200 rounded-lg px-3 py-2.5 flex items-center gap-2 text-sm text-gray-700 transition-all shadow-sm"
+                                >
+                                  <span className="text-[#E8520A] text-[15px] leading-none shrink-0">•</span>
+                                  <span className="text-xs">{doc.titulo}</span>
+                                </button>
+                              ))
+                            ) : null}
+                          </div>
+                        </div>
+                      </div>
                     ))
                   )}
                 </div>

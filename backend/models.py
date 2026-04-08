@@ -66,10 +66,12 @@ class Duvida(Base):
     duvida = Column(Text, nullable=False)
     resposta = Column(Text, nullable=True)
     id_area = Column(UUID(as_uuid=True), ForeignKey("area.id"), nullable=True)
+    id_assunto = Column(UUID(as_uuid=True), ForeignKey("assuntos.id"), nullable=True)
     status = Column(String(20), nullable=False, default="pendente")
     criado_em = Column(DateTime, default=datetime.utcnow)
     respondido_em = Column(DateTime, nullable=True)
     origem = Column(String(50), nullable=False, default="chat_publico")
 
     area = relationship("Area", backref="duvidas")
+    assunto_rel = relationship("Assunto", backref="duvidas")
 

@@ -71,20 +71,25 @@ def _try_save_duvida(query: str, query_vector: list[float], db: Session, area_no
     try:
         pertence = False
         id_area = None
+        id_assunto = None
 
-        # 1. Se o frontend já enviou a área selecionada pelo usuário, usa ela primeiro!
-        if area_nome:
+        # 1. Tenta identificar semântica de "Assuntos" (Documentos) PRIMEIRO, 
+        # para tentar achar a granularidade máxima (id_assunto) além da área.
+        pertence, id_area_semantica, id_assunto_semantica = identificar_universo_detran(query, db)
+        
+        if pertence:
+            id_area = id_area_semantica
+            id_assunto = id_assunto_semantica
+
+        # 2. Se a busca semântica falhou, e o frontend enviou a área selecionada pelo usuário, usa ela! (Fallback UI)
+        if not id_area and area_nome:
             from models import Area
             area_obj = db.query(Area).filter(Area.area == area_nome).first()
             if area_obj:
                 id_area = area_obj.id
                 pertence = True
 
-        # 2. Caso o frontend não tenha enviado, tenta por semântica de "Assuntos" (Documentos)
-        if not id_area:
-            pertence, id_area = identificar_universo_detran(query, db)
-
-        # 3. Fallback: tentar por semântica das "Áreas" Gerais
+        # 3. Fallback Final: tentar por semântica bruta das "Áreas" Gerais
         if not id_area:
             from models import Area
             from services.gemini_service import find_related_area
@@ -98,6 +103,7 @@ def _try_save_duvida(query: str, query_vector: list[float], db: Session, area_no
             duvida = Duvida(
                 duvida=query,
                 id_area=id_area,
+                id_assunto=id_assunto,
                 status="pendente",
                 origem="chat_publico",
             )

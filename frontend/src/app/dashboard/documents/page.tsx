@@ -16,7 +16,8 @@ export default function DocumentsPage() {
     formData.append("file", file);
 
     try {
-        const response = await fetch("http://localhost:8000/rag/upload", {
+        const baseURL = process.env.NEXT_PUBLIC_API_URL ?? "https://api.painel.iairuinaldo.com.br";
+        const response = await fetch(`${baseURL}/rag/upload`, {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`

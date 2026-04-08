@@ -45,9 +45,9 @@ def run_migration():
                 print(f"Assunto já existe: {doc_assunto} (Área: {nome_area}) - pulando")
                 continue
                 
-            # Criação do contexto semântico
-            contexto = f"{nome_area} {doc_assunto}"
-            print(f"Gerando embedding para contexto: '{contexto}'")
+            # Criação do contexto semântico focando apenas no Assunto (maior precisão semântica)
+            contexto = doc_assunto
+            print(f"Gerando embedding focado para assunto: '{contexto}'")
             
             try:
                 vetor = generate_embedding(contexto)

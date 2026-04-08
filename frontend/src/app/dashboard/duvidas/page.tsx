@@ -48,7 +48,7 @@ interface Area {
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 function authHeaders() {
-  const token = localStorage.getItem("access_token");
+  const token = localStorage.getItem("token");
   return {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,

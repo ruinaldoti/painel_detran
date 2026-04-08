@@ -36,7 +36,7 @@ def repopular_embeddings():
                 # Executa o UPDATE no banco
                 update_query = text("""
                     UPDATE public.assuntos 
-                    SET embedding = :embedding::vector(768)
+                    SET embedding = CAST(:embedding AS vector)
                     WHERE id = :id
                 """)
                 

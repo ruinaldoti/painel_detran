@@ -50,7 +50,7 @@ def chat_with_bot(request: ChatRequest, db: Session = Depends(get_db)):
 
     # 5. Se não respondeu → tentar salvar na tabela duvidas
     if not answered:
-        _try_save_duvida(query=query, query_vector=query_vector, db=db)
+        _try_save_duvida(query=query, query_vector=query_vector, db=db, area_nome=request.area)
 
     return {
         "reply": answer,
@@ -60,16 +60,29 @@ def chat_with_bot(request: ChatRequest, db: Session = Depends(get_db)):
 
 from services.universo_detran import identificar_universo_detran
 
-def _try_save_duvida(query: str, query_vector: list[float], db: Session) -> None:
+def _try_save_duvida(query: str, query_vector: list[float], db: Session, area_nome: str | None = None) -> None:
     """
     Verifica se a pergunta é relacionada ao universo Detran.
     Se sim, salva na tabela `duvidas` com status 'pendente'.
     Se não (fora do escopo), descarta silenciosamente.
     """
     try:
-        pertence, id_area = identificar_universo_detran(query, db)
+        pertence = False
+        id_area = None
 
-        # Fallback: tentar pelas áreas diretamente caso não tenha achado via 'assuntos'
+        # 1. Se o frontend já enviou a área selecionada pelo usuário, usa ela primeiro!
+        if area_nome:
+            from models import Area
+            area_obj = db.query(Area).filter(Area.area == area_nome).first()
+            if area_obj:
+                id_area = area_obj.id
+                pertence = True
+
+        # 2. Caso o frontend não tenha enviado, tenta por semântica de "Assuntos" (Documentos)
+        if not id_area:
+            pertence, id_area = identificar_universo_detran(query, db)
+
+        # 3. Fallback: tentar por semântica das "Áreas" Gerais
         if not id_area:
             from models import Area
             from services.gemini_service import find_related_area

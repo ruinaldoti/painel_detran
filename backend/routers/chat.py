@@ -69,6 +69,16 @@ def _try_save_duvida(query: str, query_vector: list[float], db: Session) -> None
     try:
         pertence, id_area = identificar_universo_detran(query, db)
 
+        # Fallback: tentar pelas áreas diretamente caso não tenha achado via 'assuntos'
+        if not id_area:
+            from models import Area
+            from services.gemini_service import find_related_area
+            areas = db.query(Area).all()
+            id_area_str, _ = find_related_area(query_vector, areas)
+            if id_area_str:
+                id_area = id_area_str
+                pertence = True
+
         if pertence and id_area:
             duvida = Duvida(
                 duvida=query,
@@ -78,5 +88,8 @@ def _try_save_duvida(query: str, query_vector: list[float], db: Session) -> None
             )
             db.add(duvida)
             db.commit()
-    except Exception:
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"Erro ao salvar duvida: {e}")
         db.rollback()

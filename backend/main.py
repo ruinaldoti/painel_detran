@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import auth, rag, chat, areas, duvidas, assuntos
+from routers import auth, rag, chat, areas, duvidas, assuntos, usuarios
 import os
 
 app = FastAPI(title="Painel Detran API")
@@ -21,6 +21,7 @@ app.include_router(chat.router)
 app.include_router(areas.router)
 app.include_router(duvidas.router)
 app.include_router(assuntos.router)
+app.include_router(usuarios.router)
 
 # Como as tabelas já existem, não precisamos do lifecycle (Base.metadata.create_all).
 # Apenas rodamos a API esperando o banco já existir!

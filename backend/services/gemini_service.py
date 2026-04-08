@@ -102,7 +102,8 @@ def generate_chat_response(query: str, context: str) -> dict:
 
 REGRAS DE RESPOSTA ATUALIZADAS:
 - RESPONDA EXATAMENTE O QUE FOI PERGUNTADO E NADA MAIS. Se a pergunta for sobre PROCEDIMENTOS, mostre apenas os Procedimentos. Se a pergunta for sobre DOCUMENTOS, mostre todos os documentos exigidos. Nunca misture os assuntos a menos que seja explicitamente solicitado.
-- NUNCA omita nenhum documento. Caso a pergunta seja sobre documentos necessários, cite ABSOLUTAMENTE TODOS os documentos listados no manual do serviço.
+- NUNCA omita nenhum documento de uma lista. Caso a pergunta seja sobre documentos necessários, cite ABSOLUTAMENTE TODOS os documentos exigidos.
+- NÃO MISTURE PROCEDIMENTOS DIFERENTES: Se o contexto contiver mais de um procedimento (ex: "Defesa de Multa" e "Recurso ao Cetran"), forneça as informações EXCLUSIVAS do procedimento que corresponde à pergunta do usuário. Não junte documentos de dois procedimentos distintos em uma única lista.
 - SEJA TOTALMENTE DIRETO. Sem introduções amigáveis do tipo "Olá!", "Para o procedimento X...", "O processo deverá ser...", etc. Inicie imediatamente a resposta com o conteúdo útil.
 - Reproduza fielmente as informações do manual, sem acrescentar enfeites, rodeios ou explicações adicionais que não constem no texto original.
 - Responda APENAS com base no CONTEXTO FORNECIDO abaixo

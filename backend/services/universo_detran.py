@@ -4,7 +4,7 @@ from uuid import UUID
 from services.gemini_service import generate_embedding
 
 # Threshold parameter as mentioned in spec
-def identificar_universo_detran(pergunta: str, db: Session, threshold: float = 0.75) -> tuple[bool, UUID | None]:
+def identificar_universo_detran(pergunta: str, db: Session, threshold: float = 0.50) -> tuple[bool, UUID | None]:
     """
     Verifica se a pergunta pertence ao universo do Detran.
     

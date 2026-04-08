@@ -45,7 +45,7 @@ interface Area {
   area: string;
 }
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const API = process.env.NEXT_PUBLIC_API_URL ?? "https://api.painel.iairuinaldo.com.br";
 
 function authHeaders() {
   const token = localStorage.getItem("token");

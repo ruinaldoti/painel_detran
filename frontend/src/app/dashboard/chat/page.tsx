@@ -26,7 +26,7 @@ export default function ChatPage() {
     setLoading(true);
 
     try {
-      const baseURL = process.env.NEXT_PUBLIC_API_URL ?? "https://api.painel.iairuinaldo.com.br";
+      const baseURL = process.env.NEXT_PUBLIC_API_URL ?? "https://api.iairuinaldo.com.br";
       const response = await fetch(`${baseURL}/chat/`, {
         method: "POST",
         headers: {

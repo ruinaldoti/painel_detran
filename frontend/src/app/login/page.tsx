@@ -21,7 +21,7 @@ export default function LoginPage() {
       fd.append("username", email);
       fd.append("password", password);
 
-      const baseURL = process.env.NEXT_PUBLIC_API_URL ?? "https://api.painel.iairuinaldo.com.br";
+      const baseURL = process.env.NEXT_PUBLIC_API_URL ?? "https://api.iairuinaldo.com.br";
       const response = await fetch(`${baseURL}/auth/login`, {
         method: "POST",
         body: fd,

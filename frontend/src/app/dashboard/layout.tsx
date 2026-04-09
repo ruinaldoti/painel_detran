@@ -18,7 +18,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "https://api.painel.iairuinaldo.com.br"}/duvidas/stats`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "https://api.iairuinaldo.com.br"}/duvidas/stats`, {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }
       });
       if (res.ok) {

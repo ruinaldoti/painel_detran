@@ -16,7 +16,7 @@ export default function DocumentsPage() {
     formData.append("file", file);
 
     try {
-        const baseURL = process.env.NEXT_PUBLIC_API_URL ?? "https://api.painel.iairuinaldo.com.br";
+        const baseURL = process.env.NEXT_PUBLIC_API_URL ?? "https://api.iairuinaldo.com.br";
         const response = await fetch(`${baseURL}/rag/upload`, {
             method: "POST",
             headers: {

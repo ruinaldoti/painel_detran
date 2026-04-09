@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, case, desc
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime, timedelta, timezone
@@ -124,7 +124,54 @@ def get_stats(
         .filter(Duvida.status == "respondido")
         .scalar() or 0
     )
-    return {"total": total, "pendentes": pendentes, "respondidas": respondidas}
+
+    # 1. Agrupamento por Área (Para o gráfico de barras)
+    chart_area_query = (
+        db.query(
+            Area.area.label("area_nome"),
+            func.count(Duvida.id).label("total"),
+            func.sum(case((Duvida.status == 'respondido', 1), else_=0)).label("respondidas"),
+            func.sum(case((Duvida.status == 'pendente', 1), else_=0)).label("pendentes")
+        )
+        .join(Area, Duvida.id_area == Area.id)
+        .group_by(Area.area)
+        .all()
+    )
+    
+    chart_area = [
+        {
+            "area": row.area_nome,
+            "total": row.total,
+            "respondidas": int(row.respondidas) if row.respondidas else 0,
+            "pendentes": int(row.pendentes) if row.pendentes else 0
+        }
+        for row in chart_area_query
+    ]
+
+    # 2. Ranking Top 10 Perguntas Frequentes
+    top_perguntas_query = (
+        db.query(
+            func.lower(Duvida.duvida).label("pergunta"),
+            func.count(Duvida.id).label("quantidade")
+        )
+        .group_by(func.lower(Duvida.duvida))
+        .order_by(desc("quantidade"))
+        .limit(10)
+        .all()
+    )
+
+    top_perguntas = [
+        {"pergunta": row.pergunta.capitalize(), "quantidade": row.quantidade}
+        for row in top_perguntas_query
+    ]
+
+    return {
+        "total": total, 
+        "pendentes": pendentes, 
+        "respondidas": respondidas,
+        "chart_area": chart_area,
+        "top_perguntas": top_perguntas
+    }
 
 
 @router.get("/")

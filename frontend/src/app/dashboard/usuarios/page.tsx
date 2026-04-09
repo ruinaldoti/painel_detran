@@ -91,7 +91,7 @@ export default function UsuariosPage() {
         senha: "",
         confirmar_senha: "",
         ativo: true,
-        perfil: "moderador",
+        perfil: "admin",
       });
     }
     setError(null);

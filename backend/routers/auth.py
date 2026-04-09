@@ -40,7 +40,12 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     user = db.query(Usuario).filter(Usuario.email == email).first()
     if user is None:
         raise HTTPException(status_code=401, detail=f"Usuário não encontrado no DB para o email: {email}")
+    if not user.ativo:
+        raise HTTPException(status_code=400, detail="Usuário inativo")
     return user
+
+def get_current_active_user(current_user: Usuario = Depends(get_current_user)):
+    return current_user
 
 def get_current_admin_user(current_user: Usuario = Depends(get_current_user)):
     if current_user.perfil != "admin":
@@ -71,7 +76,8 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
             "access_token": access_token, 
             "token_type": "bearer",
             "user_name": user.nome,
-            "user_perfil": user.perfil
+            "user_perfil": user.perfil,
+            "user_id": str(user.id)
         }
     except HTTPException:
         raise

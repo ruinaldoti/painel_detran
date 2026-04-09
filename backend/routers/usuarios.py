@@ -6,7 +6,7 @@ import traceback
 
 from database import get_db
 from models import Usuario
-from routers.auth import get_current_admin_user
+from routers.auth import get_current_admin_user, get_current_active_user
 from auth_utils import get_password_hash, verify_password
 
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
@@ -43,7 +43,9 @@ class UsuarioSenhaUpdate(BaseModel):
 # ──────────────────── ENDPOINTS ────────────────────
 
 @router.get("/", response_model=list[UsuarioResponse])
-def list_usuarios(db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_admin_user)):
+def list_usuarios(db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_active_user)):
+    if current_user.perfil == "moderador":
+        return [current_user]
     return db.query(Usuario).order_by(Usuario.nome).all()
 
 
@@ -58,7 +60,7 @@ def create_usuario(usuario_in: UsuarioCreate, db: Session = Depends(get_db), cur
             nome=usuario_in.nome,
             email=usuario_in.email,
             senha_hash=get_password_hash(usuario_in.senha),
-            perfil="admin", # Forçar que todo novo usuário criado aqui seja admin
+            perfil=usuario_in.perfil,
             ativo=True
         )
         db.add(new_user)
@@ -73,8 +75,11 @@ def create_usuario(usuario_in: UsuarioCreate, db: Session = Depends(get_db), cur
 
 
 @router.put("/{user_id}", response_model=UsuarioResponse)
-def update_usuario(user_id: UUID, usuario_in: UsuarioUpdate, db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_admin_user)):
+def update_usuario(user_id: UUID, usuario_in: UsuarioUpdate, db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_active_user)):
     try:
+        if current_user.perfil == "moderador" and current_user.id != user_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Moderador só pode editar seu próprio perfil")
+
         user = db.query(Usuario).filter(Usuario.id == user_id).first()
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuário não encontrado")
@@ -100,8 +105,11 @@ def update_usuario(user_id: UUID, usuario_in: UsuarioUpdate, db: Session = Depen
 
 
 @router.put("/{user_id}/senha", response_model=dict)
-def update_senha(user_id: UUID, senhas_in: UsuarioSenhaUpdate, db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_admin_user)):
+def update_senha(user_id: UUID, senhas_in: UsuarioSenhaUpdate, db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_active_user)):
     try:
+        if current_user.id != user_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Você só pode alterar a sua própria senha")
+
         user = db.query(Usuario).filter(Usuario.id == user_id).first()
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuário não encontrado")

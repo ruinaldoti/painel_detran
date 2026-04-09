@@ -45,7 +45,7 @@ class UsuarioSenhaUpdate(BaseModel):
 @router.get("/", response_model=list[UsuarioResponse])
 def list_usuarios(db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_active_user)):
     if current_user.perfil == "moderador":
-        return [current_user]
+        return db.query(Usuario).filter(Usuario.id == current_user.id).all()
     return db.query(Usuario).order_by(Usuario.nome).all()
 
 

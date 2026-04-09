@@ -31,15 +31,15 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     )
     payload = decode_access_token(token)
     if payload is None:
-        raise credentials_exception
+        raise HTTPException(status_code=401, detail=f"Token Inválido ou expirado. JWT_SECRET diferente? Token: {token[:10]}...")
     
     email: str = payload.get("sub")
     if email is None:
-        raise credentials_exception
+        raise HTTPException(status_code=401, detail="Token sem campo 'sub' (email).")
         
     user = db.query(Usuario).filter(Usuario.email == email).first()
     if user is None:
-        raise credentials_exception
+        raise HTTPException(status_code=401, detail=f"Usuário não encontrado no DB para o email: {email}")
     return user
 
 def get_current_admin_user(current_user: Usuario = Depends(get_current_user)):

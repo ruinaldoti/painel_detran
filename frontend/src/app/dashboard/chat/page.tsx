@@ -31,7 +31,7 @@ export default function ChatPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
+          "Authorization": `Bearer ${localStorage.getItem("token")?.replace(/^["']|["']$/g, "").trim()}`
         },
         body: JSON.stringify({ message: userMessage })
       });

@@ -48,10 +48,12 @@ interface Area {
 const API = process.env.NEXT_PUBLIC_API_URL ?? "https://api.iairuinaldo.com.br";
 
 function authHeaders() {
-  const token = localStorage.getItem("token");
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const cleanToken = token ? token.replace(/^["']|["']$/g, "").trim() : "";
+  
   return {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
+    Authorization: `Bearer ${cleanToken}`,
   };
 }
 

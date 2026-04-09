@@ -16,11 +16,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const fetchPendentes = async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
+      const storedToken = localStorage.getItem("token");
+      if (!storedToken || storedToken === "undefined" || storedToken === "null") {
+        return;
+      }
+      
+      const cleanToken = storedToken.replace(/^["']|["']$/g, "").trim();
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "https://api.iairuinaldo.com.br"}/duvidas/stats`, {
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${cleanToken}` }
       });
+
+      if (res.status === 401 && typeof window !== "undefined") {
+        console.error("Token Inválido no layout. Deslogando.");
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+        return;
+      }
+
       if (res.ok) {
         const data = await res.json();
         setPendentesCount(data.pendentes || 0);

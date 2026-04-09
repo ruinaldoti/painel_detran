@@ -20,7 +20,7 @@ export default function DocumentsPage() {
         const response = await fetch(`${baseURL}/rag/upload`, {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
+                "Authorization": `Bearer ${localStorage.getItem("token")?.replace(/^["']|["']$/g, "").trim()}`
             },
             body: formData
         });

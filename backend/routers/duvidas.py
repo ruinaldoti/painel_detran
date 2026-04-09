@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime, timedelta, timezone
 from database import get_db
-from models import Duvida, Area, Usuario, Documento, DocumentoChunk
+from models import Duvida, Area, Assunto, Usuario, Documento, DocumentoChunk
 from routers.auth import get_current_user
 from services.gemini_service import generate_embedding
 
@@ -125,13 +125,11 @@ def get_stats(
         .scalar() or 0
     )
 
-    # 1. Agrupamento por Área (Para o gráfico de barras)
+    # 1. Agrupamento por Área
     chart_area_query = (
         db.query(
             Area.area.label("area_nome"),
-            func.count(Duvida.id).label("total"),
-            func.sum(case((Duvida.status == 'respondido', 1), else_=0)).label("respondidas"),
-            func.sum(case((Duvida.status == 'pendente', 1), else_=0)).label("pendentes")
+            func.count(Duvida.id).label("total")
         )
         .join(Area, Duvida.id_area == Area.id)
         .group_by(Area.area)
@@ -140,29 +138,26 @@ def get_stats(
     
     chart_area = [
         {
-            "area": row.area_nome,
-            "total": row.total,
-            "respondidas": int(row.respondidas) if row.respondidas else 0,
-            "pendentes": int(row.pendentes) if row.pendentes else 0
+            "nome": row.area_nome,
+            "total": row.total
         }
         for row in chart_area_query
     ]
 
-    # 2. Ranking Top 10 Perguntas Frequentes
-    top_perguntas_query = (
+    # 2. Agrupamento por Assunto
+    chart_assunto_query = (
         db.query(
-            func.lower(Duvida.duvida).label("pergunta"),
-            func.count(Duvida.id).label("quantidade")
+            Assunto.nome.label("assunto_nome"),
+            func.count(Duvida.id).label("total")
         )
-        .group_by(func.lower(Duvida.duvida))
-        .order_by(desc("quantidade"))
-        .limit(10)
+        .join(Assunto, Duvida.id_assunto == Assunto.id)
+        .group_by(Assunto.nome)
         .all()
     )
 
-    top_perguntas = [
-        {"pergunta": row.pergunta.capitalize(), "quantidade": row.quantidade}
-        for row in top_perguntas_query
+    chart_assunto = [
+        {"nome": row.assunto_nome, "total": row.total}
+        for row in chart_assunto_query
     ]
 
     return {
@@ -170,7 +165,7 @@ def get_stats(
         "pendentes": pendentes, 
         "respondidas": respondidas,
         "chart_area": chart_area,
-        "top_perguntas": top_perguntas
+        "chart_assunto": chart_assunto
     }
 
 

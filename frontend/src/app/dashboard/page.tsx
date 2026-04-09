@@ -4,34 +4,25 @@ import { useEffect, useState } from "react";
 import { FileText, Users, MessageSquare, BarChart2, Layers, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
+  PieChart,
+  Pie,
+  Cell,
   Tooltip,
   ResponsiveContainer,
   Legend,
 } from "recharts";
 
-interface TopPergunta {
-  pergunta: string;
-  quantidade: number;
-}
-
-interface ChartArea {
-  area: string;
+interface ChartData {
+  nome: string;
   total: number;
-  respondidas: number;
-  pendentes: number;
 }
 
 interface Stats {
   total: number;
   pendentes: number;
   respondidas: number;
-  chart_area?: ChartArea[];
-  top_perguntas?: TopPergunta[];
+  chart_area?: ChartData[];
+  chart_assunto?: ChartData[];
 }
 
 export default function DashboardPage() {
@@ -134,88 +125,84 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {stats.chart_area && stats.chart_area.length > 0 && (
+      {(stats.chart_area || stats.chart_assunto) && (
         <div className="mt-8 mb-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Gráfico 1: Perguntas por Área */}
+          {/* Gráfico 1: Por Área */}
           <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col">
             <h3 className="text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <BarChart2 size={16} className="text-[#0E8B42]" />
-              Total de Perguntas por Área
+              Total de Dúvidas por Área
             </h3>
-            <div className="flex-1 w-full h-[250px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats.chart_area} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                  <XAxis dataKey="area" tick={{ fontSize: 12, fill: "#6B7280" }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 12, fill: "#6B7280" }} axisLine={false} tickLine={false} />
-                  <Tooltip 
-                    cursor={{ fill: "#F3F4F6" }} 
-                    contentStyle={{ borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }}
-                  />
-                  <Bar dataKey="total" name="Total" fill="#0E8B42" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+            <div className="flex-1 w-full h-[300px]">
+              {stats.chart_area && stats.chart_area.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={stats.chart_area}
+                      dataKey="total"
+                      nameKey="nome"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      innerRadius={50}
+                      paddingAngle={2}
+                      label={({ name, percent }) => `${name} (${((percent || 0) * 100).toFixed(0)}%)`}
+                      labelLine={false}
+                    >
+                      {stats.chart_area.map((entry, index) => (
+                        <Cell key={`cell-area-${index}`} fill={['#0E8B42', '#2563EB', '#F5A623', '#8B5CF6', '#EC4899', '#14B8A6'][index % 6]} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value: any, name: any) => [`${value} dúvídas`, name]}
+                      contentStyle={{ borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }}
+                    />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex h-full items-center justify-center text-sm text-gray-400">Sem dados de área vinculados.</div>
+              )}
             </div>
           </div>
           
-          {/* Gráfico 2: Respondidas vs Pendentes */}
+          {/* Gráfico 2: Por Assunto */}
           <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col">
             <h3 className="text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <Layers size={16} className="text-[#0E8B42]" />
-              Status por Área (Empilhado)
+              Total de Dúvidas por Assunto
             </h3>
-            <div className="flex-1 w-full h-[250px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats.chart_area} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                  <XAxis dataKey="area" tick={{ fontSize: 12, fill: "#6B7280" }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 12, fill: "#6B7280" }} axisLine={false} tickLine={false} />
-                  <Tooltip 
-                    cursor={{ fill: "#F3F4F6" }}
-                    contentStyle={{ borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }}
-                  />
-                  <Legend iconType="circle" wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }} />
-                  <Bar dataKey="respondidas" name="Respondidas" stackId="a" fill="#0E8B42" radius={[0, 0, 0, 0]} />
-                  <Bar dataKey="pendentes" name="Pendentes" stackId="a" fill="#F5A623" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+            <div className="flex-1 w-full h-[300px]">
+              {stats.chart_assunto && stats.chart_assunto.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={stats.chart_assunto}
+                      dataKey="total"
+                      nameKey="nome"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      innerRadius={50}
+                      paddingAngle={2}
+                      label={({ name, percent }) => `${name} (${((percent || 0) * 100).toFixed(0)}%)`}
+                      labelLine={false}
+                    >
+                      {stats.chart_assunto.map((entry, index) => (
+                        <Cell key={`cell-assunto-${index}`} fill={['#2563EB', '#F5A623', '#0E8B42', '#8B5CF6', '#EC4899', '#14B8A6'][index % 6]} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value: any, name: any) => [`${value} dúvídas`, name]}
+                      contentStyle={{ borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }}
+                    />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex h-full items-center justify-center text-sm text-gray-400">Sem dados de assunto vinculados.</div>
+              )}
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Top 10 Ranking */}
-      {stats.top_perguntas && stats.top_perguntas.length > 0 && (
-        <div className="mb-6 bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-          <h3 className="text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <TrendingUp size={16} className="text-[#0E8B42]" />
-            Top 10 Perguntas Mais Frequentes do Assistente
-          </h3>
-          <div className="space-y-4">
-            {stats.top_perguntas.map((item, idx) => {
-              const maxQtd = stats.top_perguntas![0].quantidade;
-              const percent = Math.max(5, (item.quantidade / maxQtd) * 100);
-              
-              return (
-                <div key={idx} className="flex items-center gap-3">
-                  <div className="w-6 text-center text-xs font-bold text-gray-400">
-                    #{idx + 1}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex justify-between text-sm mb-1.5 align-middle">
-                      <span className="font-medium text-gray-700 truncate max-w-lg" title={item.pergunta}>{item.pergunta}</span>
-                      <span className="text-gray-500 font-semibold text-xs ml-2">{item.quantidade}x</span>
-                    </div>
-                    <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                      <div 
-                        className="bg-[#0E8B42] h-full rounded-full transition-all duration-1000 ease-out" 
-                        style={{ width: `${percent}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
           </div>
         </div>
       )}

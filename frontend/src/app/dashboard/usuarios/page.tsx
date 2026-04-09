@@ -17,6 +17,9 @@ export default function UsuariosPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [currentUserPerfil, setCurrentUserPerfil] = useState<string>("admin");
+  const [currentUserId, setCurrentUserId] = useState<string>("");
+
   // Modals state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
@@ -29,6 +32,7 @@ export default function UsuariosPage() {
     senha: "",
     confirmar_senha: "",
     ativo: true,
+    perfil: "moderador",
   });
 
   const [passwordFormData, setPasswordFormData] = useState({
@@ -60,6 +64,10 @@ export default function UsuariosPage() {
   };
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      setCurrentUserPerfil(localStorage.getItem("user_perfil") || "admin");
+      setCurrentUserId(localStorage.getItem("user_id") || "");
+    }
     fetchUsuarios();
   }, []);
 
@@ -73,6 +81,7 @@ export default function UsuariosPage() {
         senha: "",
         confirmar_senha: "",
         ativo: user.ativo,
+        perfil: user.perfil,
       });
     } else {
       setEditingUserId(null);
@@ -82,6 +91,7 @@ export default function UsuariosPage() {
         senha: "",
         confirmar_senha: "",
         ativo: true,
+        perfil: "moderador",
       });
     }
     setError(null);
@@ -121,7 +131,7 @@ export default function UsuariosPage() {
 
       const payload = editingUserId
         ? { nome: formData.nome, email: formData.email, ativo: formData.ativo }
-        : { nome: formData.nome, email: formData.email, senha: formData.senha, perfil: "admin" };
+        : { nome: formData.nome, email: formData.email, senha: formData.senha, perfil: formData.perfil };
 
       const res = await fetch(url, {
         method,
@@ -202,13 +212,15 @@ export default function UsuariosPage() {
           <Users className="text-[#0E8B42]" size={24} />
           Usuários do Sistema
         </h1>
-        <button
-          onClick={() => handleOpenModal()}
-          className="flex items-center gap-2 rounded bg-[#0E8B42] px-4 py-2 text-sm font-medium text-white hover:bg-[#0b7537] transition-colors shadow-sm"
-        >
-          <Plus size={16} />
-          Novo Usuário
-        </button>
+        {currentUserPerfil === "admin" && (
+          <button
+            onClick={() => handleOpenModal()}
+            className="flex items-center gap-2 rounded bg-[#0E8B42] px-4 py-2 text-sm font-medium text-white hover:bg-[#0b7537] transition-colors shadow-sm"
+          >
+            <Plus size={16} />
+            Novo Usuário
+          </button>
+        )}
       </div>
 
       <div className="p-6 flex-1 overflow-auto">
@@ -227,6 +239,7 @@ export default function UsuariosPage() {
                 <tr>
                   <th className="px-6 py-4 font-semibold text-sm">Nome</th>
                   <th className="px-6 py-4 font-semibold text-sm">E-mail</th>
+                  <th className="px-6 py-4 font-semibold text-sm text-center">Perfil</th>
                   <th className="px-6 py-4 font-semibold text-sm text-center">Status</th>
                   <th className="px-6 py-4 font-semibold text-sm text-center">Ações</th>
                 </tr>
@@ -236,6 +249,11 @@ export default function UsuariosPage() {
                   <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 font-medium text-gray-900">{user.nome}</td>
                     <td className="px-6 py-4 text-gray-600">{user.email}</td>
+                    <td className="px-6 py-4 text-center">
+                      <span className="text-[10px] uppercase font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-md border border-gray-200">
+                        {user.perfil}
+                      </span>
+                    </td>
                     <td className="px-6 py-4 text-center">
                       <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                         user.ativo 
@@ -247,13 +265,15 @@ export default function UsuariosPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-center gap-3">
-                        <button
-                          onClick={() => handleOpenPasswordModal(user)}
-                          title="Alterar Senha"
-                          className="text-amber-500 hover:text-amber-600 p-1.5 rounded-md hover:bg-amber-50 transition-colors"
-                        >
-                          <KeyRound size={18} />
-                        </button>
+                        {currentUserId === user.id && (
+                          <button
+                            onClick={() => handleOpenPasswordModal(user)}
+                            title="Alterar Senha"
+                            className="text-amber-500 hover:text-amber-600 p-1.5 rounded-md hover:bg-amber-50 transition-colors"
+                          >
+                            <KeyRound size={18} />
+                          </button>
+                        )}
                         <button
                           onClick={() => handleOpenModal(user)}
                           title="Editar Usuário"
@@ -261,13 +281,15 @@ export default function UsuariosPage() {
                         >
                           <Pencil size={18} />
                         </button>
-                        <button
-                          onClick={() => handleDelete(user.id)}
-                          title="Excluir"
-                          className="text-red-500 hover:text-red-600 p-1.5 rounded-md hover:bg-red-50 transition-colors"
-                        >
-                          <Trash2 size={18} />
-                        </button>
+                        {currentUserPerfil === "admin" && currentUserId !== user.id && (
+                          <button
+                            onClick={() => handleDelete(user.id)}
+                            title="Excluir"
+                            className="text-red-500 hover:text-red-600 p-1.5 rounded-md hover:bg-red-50 transition-colors"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -321,6 +343,20 @@ export default function UsuariosPage() {
                   />
                 </div>
 
+                {!editingUserId && currentUserPerfil === "admin" && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Perfil do Usuário</label>
+                    <select
+                      value={formData.perfil}
+                      onChange={(e) => setFormData({ ...formData, perfil: e.target.value })}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-[#0E8B42] focus:ring-1 focus:ring-[#0E8B42]"
+                    >
+                      <option value="admin">Administrador</option>
+                      <option value="moderador">Moderador</option>
+                    </select>
+                  </div>
+                )}
+
                 {!editingUserId && (
                   <>
                     <div>
@@ -352,22 +388,13 @@ export default function UsuariosPage() {
                       type="checkbox"
                       id="ativoFlag"
                       checked={formData.ativo}
+                      disabled={currentUserPerfil !== "admin" && currentUserId !== editingUserId} // Admins podem banir outros, moderadores não
                       onChange={(e) => setFormData({ ...formData, ativo: e.target.checked })}
                       className="h-4 w-4 rounded border-gray-300 text-[#0E8B42] focus:ring-[#0E8B42]"
                     />
                     <label htmlFor="ativoFlag" className="text-sm font-medium text-gray-700">Usuário Ativo</label>
                   </div>
                 )}
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1 mt-4">Perfil</label>
-                  <input
-                    type="text"
-                    disabled
-                    value="Administrador"
-                    className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500 cursor-not-allowed"
-                  />
-                </div>
               </div>
 
               <div className="mt-8 flex items-center justify-end gap-3 pt-4 border-t border-gray-100">

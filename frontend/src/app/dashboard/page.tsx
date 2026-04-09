@@ -133,7 +133,7 @@ export default function DashboardPage() {
               <BarChart2 size={16} className="text-[#0E8B42]" />
               Total de Dúvidas por Área
             </h3>
-            <div className="flex-1 w-full h-[300px]">
+            <div style={{ height: "300px", width: "100%" }}>
               {stats.chart_area && stats.chart_area.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -172,7 +172,7 @@ export default function DashboardPage() {
               <Layers size={16} className="text-[#0E8B42]" />
               Total de Dúvidas por Assunto
             </h3>
-            <div className="flex-1 w-full h-[300px]">
+            <div style={{ height: "300px", width: "100%" }}>
               {stats.chart_assunto && stats.chart_assunto.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>

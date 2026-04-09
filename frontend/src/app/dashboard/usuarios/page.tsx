@@ -265,7 +265,7 @@ export default function UsuariosPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-center gap-3">
-                        {currentUserId === user.id && (
+                        {currentUserId === String(user.id) && (
                           <button
                             onClick={() => handleOpenPasswordModal(user)}
                             title="Alterar Senha"
@@ -281,7 +281,7 @@ export default function UsuariosPage() {
                         >
                           <Pencil size={18} />
                         </button>
-                        {currentUserPerfil === "admin" && currentUserId !== user.id && (
+                        {currentUserPerfil === "admin" && currentUserId !== String(user.id) && (
                           <button
                             onClick={() => handleDelete(user.id)}
                             title="Excluir"
@@ -388,7 +388,7 @@ export default function UsuariosPage() {
                       type="checkbox"
                       id="ativoFlag"
                       checked={formData.ativo}
-                      disabled={currentUserPerfil !== "admin" && currentUserId !== editingUserId} // Admins podem banir outros, moderadores não
+                      disabled={currentUserPerfil !== "admin" && currentUserId !== String(editingUserId)} // Admins podem banir outros, moderadores não
                       onChange={(e) => setFormData({ ...formData, ativo: e.target.checked })}
                       className="h-4 w-4 rounded border-gray-300 text-[#0E8B42] focus:ring-[#0E8B42]"
                     />

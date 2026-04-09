@@ -81,23 +81,7 @@ def _try_save_duvida(query: str, query_vector: list[float], db: Session, area_no
             id_area = id_area_semantica
             id_assunto = id_assunto_semantica
 
-        # 2. Se a busca semântica falhou, e o frontend enviou a área selecionada pelo usuário, usa ela! (Fallback UI)
-        if not id_area and area_nome:
-            from models import Area
-            area_obj = db.query(Area).filter(Area.area == area_nome).first()
-            if area_obj:
-                id_area = area_obj.id
-                pertence = True
 
-        # 3. Fallback Final: tentar por semântica bruta das "Áreas" Gerais
-        if not id_area:
-            from models import Area
-            from services.gemini_service import find_related_area
-            areas = db.query(Area).all()
-            id_area_str, _ = find_related_area(query_vector, areas)
-            if id_area_str:
-                id_area = id_area_str
-                pertence = True
 
         if pertence and id_area:
             duvida = Duvida(

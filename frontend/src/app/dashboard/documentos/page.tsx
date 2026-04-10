@@ -276,7 +276,7 @@ export default function DocumentosPage() {
                     className={`w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary text-gray-900 placeholder-gray-500 bg-white ${
                       attemptedSubmit && !titulo ? "border-red-500" : "border-gray-300 focus:border-primary"
                     }`}
-                    placeholder="Ex: Manual do DETRAN v1"
+                    placeholder="Digite o título do arquivo aqui"
                   />
                   {attemptedSubmit && !titulo && (
                     <p className="mt-1 text-xs text-red-500">O título é obrigatório.</p>

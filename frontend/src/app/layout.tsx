@@ -27,7 +27,7 @@ export default function RootLayout({
     <html lang="pt-BR" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
         <Toaster 
-          position="top-center" 
+          position="top-right" 
           toastOptions={{
             duration: 4000,
             style: {

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { X, Loader2, Trash2, Plus, Layers, ChevronDown, ChevronUp, Edit2 } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 interface Assunto {
   id: string;
@@ -96,6 +97,7 @@ export default function AreasPage() {
       });
 
       if (response.ok) {
+        toast.success("Área cadastrada com sucesso!");
         await fetchAreas();
         setIsModalAreaOpen(false);
         setNovaArea("");
@@ -159,6 +161,7 @@ export default function AreasPage() {
       });
 
       if (response.ok) {
+        toast.success(isEditing ? "Assunto atualizado com sucesso!" : "Assunto cadastrado com sucesso!");
         await fetchAssuntos(expandedAreaId);
         setIsModalAssuntoOpen(false);
       } else {

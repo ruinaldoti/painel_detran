@@ -76,7 +76,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Documentos", href: "/dashboard/documentos", icon: FileText },
-    { name: "Áreas", href: "/dashboard/areas", icon: Layers },
+    { name: "Área/Assunto", href: "/dashboard/areas", icon: Layers },
     { name: "Dúvidas", href: "/dashboard/duvidas", icon: MessageCircleQuestion },
     { name: "Usuários", href: "/dashboard/usuarios", icon: Users },
   ];

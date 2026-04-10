@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from database import get_db
-from models import Assunto, Area
+from models import Assunto, Area, Documento, Duvida
 from uuid import UUID
 from datetime import datetime
 from services.gemini_service import generate_embedding
@@ -112,6 +112,19 @@ def delete_assunto(assunto_id: UUID, db: Session = Depends(get_db)):
     assunto_db = db.query(Assunto).filter(Assunto.id == assunto_id).first()
     if not assunto_db:
         raise HTTPException(status_code=404, detail="Assunto não encontrado")
+
+    # Verifica se há Dúvidas atreladas
+    duvida_vinculada = db.query(Duvida).filter(Duvida.id_assunto == assunto_id).first()
+    if duvida_vinculada:
+        raise HTTPException(status_code=400, detail="Não é possível excluir este Assunto pois existem Dúvidas vinculadas a ele.")
+
+    # Verifica se há Documentos atrelados
+    documento_vinculado = db.query(Documento).filter(
+        Documento.id_area == assunto_db.id_area,
+        Documento.assunto == assunto_db.nome
+    ).first()
+    if documento_vinculado:
+        raise HTTPException(status_code=400, detail="Não é possível excluir este Assunto pois existem Documentos vinculados a ele.")
     
     db.delete(assunto_db)
     db.commit()

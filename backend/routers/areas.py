@@ -54,6 +54,11 @@ def delete_area(area_id: str, db: Session = Depends(get_db)):
         area = db.query(Area).filter(Area.id == area_id).first()
         if not area:
             raise HTTPException(status_code=404, detail="Área não encontrada")
+            
+        assunto_vinculado = db.query(Assunto).filter(Assunto.id_area == area_id).first()
+        if assunto_vinculado:
+            raise HTTPException(status_code=400, detail="Não é possível excluir esta Área pois existem Assuntos vinculados a ela.")
+            
         db.delete(area)
         db.commit()
         return {"message": "Área excluída com sucesso"}

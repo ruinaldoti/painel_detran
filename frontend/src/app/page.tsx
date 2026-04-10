@@ -84,13 +84,13 @@ export default function LoginPage() {
           {/* Email */}
           <div>
             <label className="block text-sm font-semibold text-[#1A1A1A] mb-1.5">
-              E-mail Institucional
+              E-mail
             </label>
             <input
               type="email"
               required
               className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-black font-medium placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#006B3C]/50 focus:border-[#006B3C] transition-all"
-              placeholder="seu.nome@detran.ce.gov.br"
+              placeholder="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -139,11 +139,11 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Botão Primário Laranja */}
+          {/* Botão Primário Verde */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#E8520A] hover:bg-[#cf4808] disabled:bg-[#f3956c] disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center transform active:scale-[0.98]"
+            className="w-full bg-[#006B3C] hover:bg-[#00532e] disabled:bg-[#66a68a] disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center transform active:scale-[0.98]"
           >
             {loading ? (
               <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">

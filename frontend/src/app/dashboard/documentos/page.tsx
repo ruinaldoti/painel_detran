@@ -120,7 +120,7 @@ export default function DocumentosPage() {
   };
 
   const handleDelete = async (id: string, titulo: string) => {
-    if (!window.confirm(`ATENÇÃO!\nTem certeza que deseja excluir o documento "${titulo}" e TODOS os seus blocos da base de conhecimento?`)) {
+    if (!window.confirm(`ATENÇÃO!\nTem certeza que deseja excluir o documento "${titulo}"?`)) {
       return;
     }
     try {

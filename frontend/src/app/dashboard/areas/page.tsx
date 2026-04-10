@@ -111,7 +111,7 @@ export default function AreasPage() {
   };
 
   const handleDeleteArea = async (id: string, nome: string) => {
-    if (!window.confirm(`Excluir a área "${nome}"?\n\nAtenção: Isso excluirá todos os Assuntos associados.`)) return;
+    if (!window.confirm(`Tem certeza de que deseja excluir a área "${nome}"?`)) return;
     try {
       const response = await fetch(`${API_URL}/areas/${id}`, { 
         method: "DELETE",
@@ -121,15 +121,15 @@ export default function AreasPage() {
         if (expandedAreaId === id) setExpandedAreaId(null);
         await fetchAreas();
       } else {
-        let msg = "Erro desconhecido";
+        let msg = "Não foi possível excluir a área devido a um erro no servidor.";
         try {
           const data = await response.json();
-          msg = data.detail || msg;
+          if (data.detail) msg = data.detail;
         } catch(e) {}
-        alert(`Erro ao excluir a área: ${msg} (Status: ${response.status})`);
+        alert(`Atenção: ${msg}`);
       }
     } catch (error: any) {
-      alert(`Erro de conexão ao excluir: ${error.message || error}`);
+      alert(`Erro de conexão ao tentar excluir.`);
     }
   };
 
@@ -179,10 +179,15 @@ export default function AreasPage() {
       if (response.ok && expandedAreaId) {
         await fetchAssuntos(expandedAreaId);
       } else {
-        alert("Erro ao excluir assunto.");
+        let msg = "Não foi possível excluir o assunto devido a um erro no servidor.";
+        try {
+          const data = await response.json();
+          if (data.detail) msg = data.detail;
+        } catch (e) {}
+        alert(`Atenção: ${msg}`);
       }
     } catch {
-      alert("Erro de conexão.");
+      alert("Erro de conexão ao tentar excluir.");
     }
   };
 

@@ -334,7 +334,7 @@ export default function AreasPage() {
                   required
                   autoFocus
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="Ex: Atendimento ao Cidadão..."
+                  placeholder="Digite aqui o nome da Área"
                 />
               </div>
               {errorArea && (
@@ -390,7 +390,7 @@ export default function AreasPage() {
                   required
                   autoFocus
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="Ex: Recursos de Multas..."
+                  placeholder="Digite aqui o nome do Assunto"
                 />
               </div>
               <p className="text-[10px] text-gray-500 leading-tight">O sistema irá gerar um vetor semântico disto automaticamente conectando à Área selecionada. Esta operação demanda tempo (1-3 segs).</p>

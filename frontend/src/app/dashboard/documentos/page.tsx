@@ -107,22 +107,7 @@ export default function DocumentosPage() {
       if (response.ok) {
         await fetchDocuments();
         closeModal();
-        toast.success("Documento inserido com sucesso!", {
-          duration: 6000,
-          style: {
-            background: "#6fc27c",
-            color: "#ffffff",
-            padding: "20px 30px",
-            fontSize: "18px",
-            fontWeight: "500",
-            minWidth: "400px",
-            boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
-          },
-          iconTheme: {
-            primary: "#ffffff",
-            secondary: "#6fc27c",
-          },
-        });
+        toast.success("Documento inserido com sucesso!");
       } else {
         alert("Erro no upload do arquivo.");
       }

@@ -90,7 +90,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         } fixed inset-y-0 left-0 z-50 w-64 bg-[#0E8B42] text-white transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 border-r border-[#0E8B42]`}
       >
         <div className="flex h-16 items-center justify-between bg-[#0b7537] px-6">
-          <span className="text-[20px] font-bold tracking-wide text-white">PAINEL DO CHAT</span>
+          <span className="text-[20px] font-bold tracking-wide text-white">GESTÃO DO CHAT IA</span>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-green-100 hover:text-white">
             <X size={24} />
           </button>

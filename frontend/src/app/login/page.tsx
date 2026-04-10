@@ -34,6 +34,10 @@ export default function LoginPage() {
 
       const data = await response.json();
       localStorage.setItem("token", data.access_token);
+      localStorage.setItem("access_token", data.access_token);
+      localStorage.setItem("user_name", data.user_name);
+      localStorage.setItem("user_perfil", data.user_perfil);
+      if (data.user_id) localStorage.setItem("user_id", data.user_id);
       router.push("/dashboard");
     } catch (err: any) {
       setError(err.message);
@@ -85,7 +89,7 @@ export default function LoginPage() {
             <input
               type="email"
               required
-              className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-[#1A1A1A] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#006B3C]/50 focus:border-[#006B3C] transition-all"
+              className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-black font-medium placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#006B3C]/50 focus:border-[#006B3C] transition-all"
               placeholder="seu.nome@detran.ce.gov.br"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -101,7 +105,7 @@ export default function LoginPage() {
               <input
                 type={showPassword ? "text" : "password"}
                 required
-                className="w-full bg-gray-50 border border-gray-300 rounded-lg pl-4 pr-12 py-3 text-[#1A1A1A] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#006B3C]/50 focus:border-[#006B3C] transition-all"
+                className="w-full bg-gray-50 border border-gray-300 rounded-lg pl-4 pr-12 py-3 text-black font-medium tracking-widest placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#006B3C]/50 focus:border-[#006B3C] transition-all"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

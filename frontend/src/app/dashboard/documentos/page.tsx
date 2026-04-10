@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Upload, X, FileText, Loader2, Trash2 } from "lucide-react";
+import toast from "react-hot-toast";
 
 interface RAGDocument {
   id: string;
@@ -28,8 +29,18 @@ export default function DocumentosPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [areas, setAreas] = useState<Area[]>([]);
   const [assuntosDrop, setAssuntosDrop] = useState<any[]>([]);
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
 
   const API_URL = "https://api.iairuinaldo.com.br";
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedFile(null);
+    setTitulo("");
+    setAssunto("");
+    setIdArea("");
+    setAttemptedSubmit(false);
+  };
 
   const fetchDocuments = async () => {
     setIsLoading(true);
@@ -76,7 +87,9 @@ export default function DocumentosPage() {
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedFile) return;
+    setAttemptedSubmit(true);
+
+    if (!selectedFile || !idArea || !assunto || !titulo) return;
 
     setIsUploading(true);
     const formData = new FormData();
@@ -93,11 +106,8 @@ export default function DocumentosPage() {
 
       if (response.ok) {
         await fetchDocuments();
-        setIsModalOpen(false);
-        setSelectedFile(null);
-        setTitulo("");
-        setAssunto("");
-        setIdArea("");
+        closeModal();
+        toast.success("Documento inserido com sucesso! ✅");
       } else {
         alert("Erro no upload do arquivo.");
       }
@@ -110,7 +120,7 @@ export default function DocumentosPage() {
   };
 
   const handleDelete = async (id: string, titulo: string) => {
-    if (!window.confirm(`ATENÇÃO!\nTem certeza que deseja excluir o documento "${titulo}" e TODOS os seus blocos da IA?`)) {
+    if (!window.confirm(`ATENÇÃO!\nTem certeza que deseja excluir o documento "${titulo}" e TODOS os seus blocos da base de conhecimento?`)) {
       return;
     }
     try {
@@ -201,12 +211,6 @@ export default function DocumentosPage() {
                     <td className="px-5 py-3 text-right align-middle">
                       <div className="flex justify-end gap-1">
                         <button
-                          className="bg-gray-100 border border-gray-300 text-gray-600 hover:bg-gray-200 transition-colors p-1.5 rounded-sm"
-                          title="Detalhes"
-                        >
-                          <FileText size={14} />
-                        </button>
-                        <button
                           onClick={() => handleDelete(doc.id, doc.titulo || doc.nome_arquivo)}
                           className="bg-gray-100 border border-gray-300 text-red-500 hover:bg-red-50 hover:border-red-200 transition-colors p-1.5 rounded-sm"
                           title="Excluir Documento"
@@ -230,33 +234,38 @@ export default function DocumentosPage() {
             <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
               <h3 className="text-lg font-semibold text-gray-900">Novo Documento PDF</h3>
               <button
-                onClick={() => setIsModalOpen(false)}
+                onClick={closeModal}
                 className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
                 disabled={isUploading}
               >
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={handleUpload} className="p-6">
+            <form onSubmit={handleUpload} className="p-6" noValidate>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-900 mb-1">
                     Área *
                   </label>
                   <select
                     value={idArea}
                     onChange={(e) => setIdArea(e.target.value)}
                     required
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white"
+                    className={`w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary text-gray-900 placeholder-gray-500 bg-white ${
+                      attemptedSubmit && !idArea ? "border-red-500" : "border-gray-300 focus:border-primary"
+                    }`}
                   >
-                    <option value="">Selecione uma área...</option>
+                    <option value="" className="text-gray-700">Selecione uma área...</option>
                     {areas.map((a) => (
-                      <option key={a.id} value={a.id}>{a.area}</option>
+                      <option key={a.id} value={a.id} className="text-gray-900">{a.area}</option>
                     ))}
                   </select>
+                  {attemptedSubmit && !idArea && (
+                    <p className="mt-1 text-xs text-red-500">A área é obrigatória.</p>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-900 mb-1">
                     Título Arquivo *
                   </label>
                   <input
@@ -264,12 +273,17 @@ export default function DocumentosPage() {
                     value={titulo}
                     onChange={(e) => setTitulo(e.target.value)}
                     required
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                    className={`w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary text-gray-900 placeholder-gray-500 bg-white ${
+                      attemptedSubmit && !titulo ? "border-red-500" : "border-gray-300 focus:border-primary"
+                    }`}
                     placeholder="Ex: Manual do DETRAN v1"
                   />
+                  {attemptedSubmit && !titulo && (
+                    <p className="mt-1 text-xs text-red-500">O título é obrigatório.</p>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-900 mb-1">
                     Assunto do Arquivo *
                   </label>
                   <select
@@ -277,19 +291,24 @@ export default function DocumentosPage() {
                     onChange={(e) => setAssunto(e.target.value)}
                     required
                     disabled={!idArea || assuntosDrop.length === 0}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white"
+                    className={`w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary text-gray-900 placeholder-gray-500 bg-white ${
+                      attemptedSubmit && !assunto ? "border-red-500" : "border-gray-300 focus:border-primary"
+                    }`}
                   >
-                    <option value="">
+                    <option value="" className="text-gray-700">
                       {!idArea ? "Selecione uma área primeiro..." : (assuntosDrop.length === 0 ? "Nenhum assunto nesta área..." : "Selecione um assunto...")}
                     </option>
                     {assuntosDrop.map((a) => (
-                      <option key={a.id} value={a.assunto}>{a.assunto}</option>
+                      <option key={a.id} value={a.assunto} className="text-gray-900">{a.assunto}</option>
                     ))}
                   </select>
+                  {attemptedSubmit && !assunto && (
+                    <p className="mt-1 text-xs text-red-500">O assunto é obrigatório.</p>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Arquivo (PDF apenas)
+                  <label className="block text-sm font-medium text-gray-900 mb-1">
+                    Arquivo (PDF apenas) *
                   </label>
                   <input
                     type="file"
@@ -299,21 +318,26 @@ export default function DocumentosPage() {
                         setSelectedFile(e.target.files[0]);
                       }
                     }}
-                    className="block w-full text-sm text-gray-500
+                    className={`block w-full text-sm text-gray-500
                       file:mr-4 file:py-2.5 file:px-4
                       file:rounded-lg file:border-0
                       file:text-sm file:font-semibold
                       file:bg-secondary/10 file:text-secondary
                       hover:file:bg-secondary/20 transition-colors
-                      cursor-pointer focus:outline-none"
+                      cursor-pointer focus:outline-none ${
+                        attemptedSubmit && !selectedFile ? "border border-red-500 rounded p-1" : ""
+                      }`}
                     required
                   />
+                  {attemptedSubmit && !selectedFile && (
+                    <p className="mt-1 text-xs text-red-500">O arquivo é obrigatório.</p>
+                  )}
                 </div>
               </div>
               <div className="mt-8 flex justify-end gap-3">
                 <button
                   type="button"
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={closeModal}
                   className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
                   disabled={isUploading}
                 >
@@ -321,8 +345,13 @@ export default function DocumentosPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={isUploading || !selectedFile}
-                  className="flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#00522e] disabled:opacity-50 transition-colors"
+                  onClick={() => setAttemptedSubmit(true)}
+                  disabled={isUploading}
+                  className={`flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors ${
+                    isUploading || !selectedFile || !titulo || !idArea || !assunto
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:bg-[#00522e]"
+                  }`}
                 >
                   {isUploading && <Loader2 size={16} className="animate-spin" />}
                   {isUploading ? "Enviando e Vetorizando..." : "Concluir Upload"}

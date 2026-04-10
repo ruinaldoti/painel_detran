@@ -165,14 +165,14 @@ export default function DocumentosPage() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-white border-b border-gray-200">
               <tr>
-                <th className="px-5 py-4 text-left text-xs font-bold text-blue-600">
-                  DESCRIÇÃO
-                </th>
                 <th className="px-5 py-4 text-left text-xs font-bold text-blue-600 w-1/4">
                   ÁREA
                 </th>
                 <th className="px-5 py-4 text-left text-xs font-bold text-blue-600 w-1/4">
                   ASSUNTO
+                </th>
+                <th className="px-5 py-4 text-left text-xs font-bold text-blue-600">
+                  DESCRIÇÃO
                 </th>
                 <th className="px-5 py-4 text-right text-xs font-bold text-blue-600 w-24">
                   AÇÕES
@@ -197,9 +197,6 @@ export default function DocumentosPage() {
               ) : (
                 documents.map((doc) => (
                   <tr key={doc.id} className="even:bg-gray-50 hover:bg-blue-50/50 transition-colors">
-                    <td className="px-5 py-3 text-sm text-gray-800 break-words align-middle font-medium">
-                      {doc.titulo || doc.nome_arquivo}
-                    </td>
                     <td className="px-5 py-3 text-sm text-gray-600 align-middle">
                       {doc.id_area
                         ? (areas.find(a => a.id === doc.id_area)?.area || "-")
@@ -207,6 +204,9 @@ export default function DocumentosPage() {
                     </td>
                     <td className="px-5 py-3 text-sm text-gray-600 align-middle break-words">
                       {doc.assunto || "Geral"}
+                    </td>
+                    <td className="px-5 py-3 text-sm text-gray-800 break-words align-middle font-medium">
+                      {doc.titulo || doc.nome_arquivo}
                     </td>
                     <td className="px-5 py-3 text-right align-middle">
                       <div className="flex justify-end gap-1">

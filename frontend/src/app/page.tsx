@@ -90,7 +90,7 @@ export default function LoginPage() {
               type="email"
               required
               className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-black font-medium placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#006B3C]/50 focus:border-[#006B3C] transition-all"
-              placeholder="email"
+              placeholder="informe o e-mail"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />

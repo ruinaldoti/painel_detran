@@ -62,6 +62,8 @@ def delete_area(area_id: str, db: Session = Depends(get_db)):
         db.delete(area)
         db.commit()
         return {"message": "Área excluída com sucesso"}
+    except HTTPException:
+        raise
     except Exception as e:
         db.rollback()
         # Captura erro de FK constraint (como Dúvidas associadas a Área)

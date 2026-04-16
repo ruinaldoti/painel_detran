@@ -91,18 +91,10 @@ function authHeaders() {
 function StatusBadge({ status, ingerido }: { status: Status; ingerido: boolean }) {
   if (status === "respondido") {
     return (
-      <div className="flex flex-col gap-1 items-start">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
-          <CheckCircle2 size={11} />
-          Respondida
-        </span>
-        {ingerido && (
-          <span className="inline-flex items-center gap-1 rounded bg-[#0E8B42]/10 px-1.5 py-0.5 text-[10px] font-bold text-[#0E8B42]">
-            <Database size={10} />
-            Base Atualizada
-          </span>
-        )}
-      </div>
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
+        <CheckCircle2 size={11} />
+        Respondida
+      </span>
     );
   }
   return (

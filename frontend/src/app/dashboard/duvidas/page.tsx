@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import {
   MessageCircleQuestion,
   CheckCircle2,
@@ -337,6 +338,8 @@ export default function DuvidasPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
   
   const { showToast, ToastContainer } = useToast();
+  const router = useRouter();
+  const pathname = usePathname();
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -352,6 +355,15 @@ export default function DuvidasPage() {
         fetch(`${API}/areas/`, { headers: authHeaders() }),
       ]);
 
+      if (duvidasRes.status === 401 || statsRes.status === 401 || areasRes.status === 401) {
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("token");
+          localStorage.removeItem("access_token");
+        }
+        router.push("/");
+        return;
+      }
+
       if (duvidasRes.ok) setDuvidas(await duvidasRes.json());
       if (statsRes.ok) setStats(await statsRes.json());
       if (areasRes.ok) setAreas(await areasRes.json());
@@ -363,6 +375,24 @@ export default function DuvidasPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // Handle visibility changes for automatic refetch when returning to tab
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchData();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [fetchData]);
+
+  // Handle SPA routing to reload data when explicitly navigating to this screen
+  useEffect(() => {
+    if (pathname === '/dashboard/duvidas') {
+      fetchData();
+    }
+  }, [pathname, fetchData]);
 
   const handleDelete = async (duvida: Duvida) => {
     const isRespondida = duvida.status === "respondido";

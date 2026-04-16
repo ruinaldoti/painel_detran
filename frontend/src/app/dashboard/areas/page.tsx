@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { X, Loader2, Trash2, Plus, Layers, ChevronDown, ChevronUp, Edit2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
@@ -37,12 +38,30 @@ export default function AreasPage() {
   const [isSavingAssunto, setIsSavingAssunto] = useState(false);
   const [errorAssunto, setErrorAssunto] = useState("");
 
+  const router = useRouter();
+  const pathname = usePathname();
+
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.iairuinaldo.com.br";
 
-  const fetchAreas = async () => {
+  const fetchAreas = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_URL}/areas/`);
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const cleanToken = token ? token.replace(/^["']|["']$/g, "").trim() : "";
+      
+      const response = await fetch(`${API_URL}/areas/`, {
+        headers: { Authorization: `Bearer ${cleanToken}` }
+      });
+
+      if (response.status === 401) {
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("token");
+          localStorage.removeItem("access_token");
+        }
+        router.push("/");
+        return;
+      }
+
       if (response.ok) {
         const data = await response.json();
         setAreas(data);
@@ -52,7 +71,7 @@ export default function AreasPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [router]);
 
   const fetchAssuntos = async (areaId: string) => {
     setIsLoadingAssuntos(true);
@@ -71,7 +90,25 @@ export default function AreasPage() {
 
   useEffect(() => {
     fetchAreas();
-  }, []);
+  }, [fetchAreas]);
+
+  // Handle visibility changes for automatic refetch when returning to tab
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchAreas();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [fetchAreas]);
+
+  // Handle SPA routing to reload data when explicitly navigating to this screen
+  useEffect(() => {
+    if (pathname === '/dashboard/areas') {
+      fetchAreas();
+    }
+  }, [pathname, fetchAreas]);
 
   const toggleArea = (areaId: string) => {
     if (expandedAreaId === areaId) {
@@ -90,9 +127,15 @@ export default function AreasPage() {
     if (!novaArea.trim()) return;
     setIsSavingArea(true);
     try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const cleanToken = token ? token.replace(/^["']|["']$/g, "").trim() : "";
+      
       const response = await fetch(`${API_URL}/areas/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${cleanToken}`
+        },
         body: JSON.stringify({ area: novaArea.trim() }),
       });
 
@@ -115,9 +158,15 @@ export default function AreasPage() {
   const handleDeleteArea = async (id: string, nome: string) => {
     if (!window.confirm(`Tem certeza de que deseja excluir a área "${nome}"?`)) return;
     try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const cleanToken = token ? token.replace(/^["']|["']$/g, "").trim() : "";
+      
       const response = await fetch(`${API_URL}/areas/${id}`, { 
         method: "DELETE",
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${cleanToken}`
+        }
       });
       if (response.ok) {
         if (expandedAreaId === id) setExpandedAreaId(null);
@@ -154,9 +203,15 @@ export default function AreasPage() {
     const method = isEditing ? "PUT" : "POST";
 
     try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const cleanToken = token ? token.replace(/^["']|["']$/g, "").trim() : "";
+      
       const response = await fetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${cleanToken}`
+        },
         body: JSON.stringify({ id_area: expandedAreaId, assunto: novoAssuntoDesc.trim() }),
       });
 
@@ -178,7 +233,13 @@ export default function AreasPage() {
   const handleDeleteAssunto = async (id: string, desc: string) => {
     if (!window.confirm(`Excluir o assunto "${desc}"?`)) return;
     try {
-      const response = await fetch(`${API_URL}/assuntos/${id}`, { method: "DELETE" });
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const cleanToken = token ? token.replace(/^["']|["']$/g, "").trim() : "";
+      
+      const response = await fetch(`${API_URL}/assuntos/${id}`, { 
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${cleanToken}` } 
+      });
       if (response.ok && expandedAreaId) {
         await fetchAssuntos(expandedAreaId);
       } else {

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { Plus, Pencil, Trash2, KeyRound, X, Users } from "lucide-react";
 
 interface Usuario {
@@ -41,18 +42,33 @@ export default function UsuariosPage() {
     confirmar_senha: "",
   });
 
+  const router = useRouter();
+  const pathname = usePathname();
+
   // Load Users
-  const fetchUsuarios = async () => {
+  const fetchUsuarios = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem("access_token");
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") || localStorage.getItem("access_token") : null;
+      const cleanToken = token ? token.replace(/^["']|["']$/g, "").trim() : "";
+      
       const res = await fetch(`${API_URL}/usuarios/`, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${cleanToken}`
         }
       });
+
+      if (res.status === 401) {
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("token");
+          localStorage.removeItem("access_token");
+        }
+        router.push("/");
+        return;
+      }
+
       if (!res.ok) throw new Error("Falha ao carregar usuários");
       const data = await res.json();
       setUsuarios(data);
@@ -61,7 +77,7 @@ export default function UsuariosPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [router]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -69,7 +85,25 @@ export default function UsuariosPage() {
       setCurrentUserId(localStorage.getItem("user_id") || "");
     }
     fetchUsuarios();
-  }, []);
+  }, [fetchUsuarios]);
+
+  // Handle visibility changes for automatic refetch when returning to tab
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchUsuarios();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [fetchUsuarios]);
+
+  // Handle SPA routing to reload data when explicitly navigating to this screen
+  useEffect(() => {
+    if (pathname === '/dashboard/usuarios') {
+      fetchUsuarios();
+    }
+  }, [pathname, fetchUsuarios]);
 
   // Handlers
   const handleOpenModal = (user?: Usuario) => {
@@ -125,7 +159,8 @@ export default function UsuariosPage() {
     }
 
     try {
-      const token = localStorage.getItem("access_token");
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") || localStorage.getItem("access_token") : null;
+      const cleanToken = token ? token.replace(/^["']|["']$/g, "").trim() : "";
       const url = `${API_URL}/usuarios/${editingUserId || ""}`;
       const method = editingUserId ? "PUT" : "POST";
 
@@ -137,7 +172,7 @@ export default function UsuariosPage() {
         method,
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${cleanToken}`
         },
         body: JSON.stringify(payload)
       });
@@ -164,12 +199,14 @@ export default function UsuariosPage() {
     }
 
     try {
-      const token = localStorage.getItem("access_token");
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") || localStorage.getItem("access_token") : null;
+      const cleanToken = token ? token.replace(/^["']|["']$/g, "").trim() : "";
+      
       const res = await fetch(`${API_URL}/usuarios/${editingUserId}/senha`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${cleanToken}`
         },
         body: JSON.stringify(passwordFormData)
       });
@@ -189,10 +226,12 @@ export default function UsuariosPage() {
     if (!confirm("Tem certeza que deseja excluir permanentemente este usuário?")) return;
 
     try {
-      const token = localStorage.getItem("access_token");
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") || localStorage.getItem("access_token") : null;
+      const cleanToken = token ? token.replace(/^["']|["']$/g, "").trim() : "";
+
       const res = await fetch(`${API_URL}/usuarios/${id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${cleanToken}` }
       });
 
       if (!res.ok) {

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { Upload, X, FileText, Loader2, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -31,6 +32,9 @@ export default function DocumentosPage() {
   const [assuntosDrop, setAssuntosDrop] = useState<any[]>([]);
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
 
+  const router = useRouter();
+  const pathname = usePathname();
+
   const API_URL = "https://api.iairuinaldo.com.br";
 
   const closeModal = () => {
@@ -42,10 +46,25 @@ export default function DocumentosPage() {
     setAttemptedSubmit(false);
   };
 
-  const fetchDocuments = async () => {
+  const fetchDocuments = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_URL}/rag/documents`);
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const cleanToken = token ? token.replace(/^["']|["']$/g, "").trim() : "";
+      
+      const response = await fetch(`${API_URL}/rag/documents`, { 
+        headers: { Authorization: `Bearer ${cleanToken}` } 
+      });
+
+      if (response.status === 401) {
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("token");
+          localStorage.removeItem("access_token");
+        }
+        router.push("/");
+        return;
+      }
+
       if (response.ok) {
         const data = await response.json();
         setDocuments(data);
@@ -55,7 +74,7 @@ export default function DocumentosPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [router]);
 
   const fetchAreas = async () => {
     try {
@@ -67,7 +86,25 @@ export default function DocumentosPage() {
   useEffect(() => {
     fetchDocuments();
     fetchAreas();
-  }, []);
+  }, [fetchDocuments]);
+
+  // Handle visibility changes for automatic refetch when returning to tab
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchDocuments();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [fetchDocuments]);
+
+  // Handle SPA routing to reload data when explicitly navigating to this screen
+  useEffect(() => {
+    if (pathname === '/dashboard/documentos') {
+      fetchDocuments();
+    }
+  }, [pathname, fetchDocuments]);
 
   // Busca Assuntos dinamicamente quando a Área é selecionada
   useEffect(() => {
@@ -98,9 +135,13 @@ export default function DocumentosPage() {
     formData.append("id_area", idArea);
     formData.append("file", selectedFile);
 
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const cleanToken = token ? token.replace(/^["']|["']$/g, "").trim() : "";
+
     try {
       const response = await fetch(`${API_URL}/rag/upload`, {
         method: "POST",
+        headers: { Authorization: `Bearer ${cleanToken}` },
         body: formData,
       });
 
@@ -123,9 +164,12 @@ export default function DocumentosPage() {
     if (!window.confirm(`ATENÇÃO!\nTem certeza que deseja excluir o documento "${titulo}"?`)) {
       return;
     }
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const cleanToken = token ? token.replace(/^["']|["']$/g, "").trim() : "";
     try {
       const response = await fetch(`${API_URL}/rag/documents/${id}`, {
         method: "DELETE",
+        headers: { Authorization: `Bearer ${cleanToken}` }
       });
       if (response.ok) {
         await fetchDocuments();

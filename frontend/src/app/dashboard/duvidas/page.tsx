@@ -313,7 +313,7 @@ function ResponderModal({
             ) : (
               <>
                 {isEditing ? <Edit2 size={14} /> : <Send size={14} />}
-                {isEditing ? "Atualizar Base" : "Responder e Ingerir"}
+                {isEditing ? "Atualizar Base" : "Responder"}
               </>
             )}
           </button>

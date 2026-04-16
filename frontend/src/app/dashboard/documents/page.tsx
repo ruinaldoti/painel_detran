@@ -41,7 +41,7 @@ export default function DocumentsPage() {
     <div className="flex-1 p-8 overflow-y-auto bg-slate-950 h-full">
       <div className="flex flex-col mb-8">
         <h2 className="text-3xl font-bold text-white tracking-tight">Base de Conhecimento</h2>
-        <p className="text-slate-400 mt-1">Carregue PDFs e manuais. A IA dividirá e gerará embeddings automaticamente (RAG).</p>
+        <p className="text-slate-400 mt-1">Carregue PDFs e manuais. A Inteligência Artificial processará o conteúdo automaticamente.</p>
       </div>
 
       <div className="max-w-xl mx-auto bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-xl">

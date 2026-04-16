@@ -99,7 +99,7 @@ function StatusBadge({ status, ingerido }: { status: Status; ingerido: boolean }
         {ingerido && (
           <span className="inline-flex items-center gap-1 rounded bg-[#0E8B42]/10 px-1.5 py-0.5 text-[10px] font-bold text-[#0E8B42]">
             <Database size={10} />
-            RAG Ingerido
+            Base Atualizada
           </span>
         )}
       </div>
@@ -160,8 +160,8 @@ export function useToast() {
   const ToastContainer = () => {
     if (!toast) return null;
     return (
-      <div className="fixed bottom-4 right-4 z-[9999] animate-in slide-in-from-bottom-5 fade-in duration-300">
-        <div className={`flex items-center gap-2 rounded-lg px-4 py-3 shadow-xl ${
+      <div className="fixed top-8 right-6 z-[9999] animate-in slide-in-from-top-5 fade-in duration-300">
+        <div className={`flex items-center gap-3 rounded-lg px-5 py-4 shadow-xl border ${
           toast.type === "success" ? "bg-[#0E8B42] text-white" : "bg-red-600 text-white"
         }`}>
           {toast.type === "success" ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
@@ -241,7 +241,7 @@ function ResponderModal({
             </div>
             <div>
               <h2 className="text-sm font-bold text-gray-900">
-                {isEditing ? "Editar Resposta e Base RAG" : "Responder Dúvida"}
+                {isEditing ? "Editar Resposta e Base" : "Responder Dúvida"}
               </h2>
               {duvida.area_nome && (
                 <p className="text-xs text-gray-500">Área: {duvida.area_nome}</p>
@@ -277,7 +277,7 @@ function ResponderModal({
           <textarea
             rows={5}
             className={`w-full resize-none rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-800 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 transition ${isEditing ? 'focus:border-blue-500 focus:ring-blue-500/20' : 'focus:border-[#0E8B42] focus:ring-[#0E8B42]/20'}`}
-            placeholder="Digite a resposta que será enviada para o RAG..."
+            placeholder="Digite a resposta que será adicionada à base de conhecimento..."
             value={resposta}
             onChange={(e) => setResposta(e.target.value)}
           />
@@ -308,7 +308,7 @@ function ResponderModal({
             {saving ? (
               <>
                 <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                Salvando & Ingerindo no RAG...
+                Salvando & Atualizando Base...
               </>
             ) : (
               <>

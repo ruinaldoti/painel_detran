@@ -599,7 +599,7 @@ export default function DuvidasPage() {
 
                   <td className="hidden px-3 py-4 md:table-cell">
                     {d.area_nome ? (
-                      <span className="inline-block max-w-[160px] truncate rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
+                      <span className="inline-block max-w-xs whitespace-normal break-words rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
                         {d.area_nome}
                       </span>
                     ) : (
@@ -609,7 +609,7 @@ export default function DuvidasPage() {
 
                   <td className="hidden px-3 py-4 md:table-cell">
                     {d.assunto_nome ? (
-                      <span className="inline-block max-w-[160px] truncate rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
+                      <span className="inline-block max-w-[300px] whitespace-normal break-words rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
                         {d.assunto_nome}
                       </span>
                     ) : (

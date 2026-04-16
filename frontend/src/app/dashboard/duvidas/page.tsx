@@ -40,6 +40,7 @@ interface Duvida {
   resposta: string | null;
   id_area: string | null;
   area_nome: string | null;
+  assunto_nome: string | null;
   status: Status;
   criado_em: string;
   respondido_em: string | null;
@@ -555,6 +556,9 @@ export default function DuvidasPage() {
                 <th className="hidden px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 md:table-cell whitespace-nowrap">
                   Área Sugerida
                 </th>
+                <th className="hidden px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 md:table-cell whitespace-nowrap">
+                  Assunto
+                </th>
                 <th className="hidden px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 lg:table-cell whitespace-nowrap">
                   Recebida
                 </th>
@@ -597,6 +601,16 @@ export default function DuvidasPage() {
                     {d.area_nome ? (
                       <span className="inline-block max-w-[160px] truncate rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
                         {d.area_nome}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-300">—</span>
+                    )}
+                  </td>
+
+                  <td className="hidden px-3 py-4 md:table-cell">
+                    {d.assunto_nome ? (
+                      <span className="inline-block max-w-[160px] truncate rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
+                        {d.assunto_nome}
                       </span>
                     ) : (
                       <span className="text-xs text-gray-300">—</span>

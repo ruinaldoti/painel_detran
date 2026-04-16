@@ -30,6 +30,7 @@ def _serialize(duvida: Duvida, is_ingerido: bool = False) -> dict:
         "resposta": duvida.resposta,
         "id_area": str(duvida.id_area) if duvida.id_area else None,
         "area_nome": duvida.area.area if duvida.area else None,
+        "assunto_nome": duvida.assunto_rel.nome if duvida.assunto_rel else None,
         "status": duvida.status,
         "criado_em": duvida.criado_em,
         "respondido_em": duvida.respondido_em,

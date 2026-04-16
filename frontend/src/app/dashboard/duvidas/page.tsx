@@ -258,7 +258,7 @@ function ResponderModal({
 
         <div className="mb-4 rounded-xl bg-gray-50 border border-gray-200 p-4">
           <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">
-            Pergunta do cidadão
+            Pergunta do usuário
           </p>
           <p className="text-sm text-gray-800 leading-relaxed">{duvida.duvida}</p>
           <p className="mt-2 text-xs text-gray-400">

@@ -29,6 +29,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { toast } from "react-hot-toast";
 
 // ─────────────── Types ───────────────
 
@@ -135,37 +136,6 @@ function MetricCard({
 }
 
 // ─────────────── Toast System ───────────────
-export function useToast() {
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
-
-  useEffect(() => {
-    if (toast) {
-      const timer = setTimeout(() => setToast(null), 4000);
-      return () => clearTimeout(timer);
-    }
-  }, [toast]);
-
-  const showToast = (message: string, type: "success" | "error") => {
-    setToast({ message, type });
-  };
-
-  const ToastContainer = () => {
-    if (!toast) return null;
-    return (
-      <div className="fixed top-8 right-6 z-[9999] animate-in slide-in-from-top-5 fade-in duration-300">
-        <div className={`flex items-center gap-3 rounded-lg px-5 py-4 shadow-xl border ${
-          toast.type === "success" ? "bg-[#0E8B42] text-white" : "bg-red-600 text-white"
-        }`}>
-          {toast.type === "success" ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
-          <span className="text-sm font-medium">{toast.message}</span>
-        </div>
-      </div>
-    );
-  };
-
-  return { showToast, ToastContainer };
-}
-
 
 // ─────────────── Modal de Resposta/Edição ───────────────
 
@@ -330,7 +300,6 @@ export default function DuvidasPage() {
   const [selected, setSelected] = useState<Duvida | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   
-  const { showToast, ToastContainer } = useToast();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -402,14 +371,14 @@ export default function DuvidasPage() {
       
       if (!res.ok) throw new Error("Erro ao excluir");
       
-      showToast("Dúvida excluída com sucesso", "success");
+      toast.success("Dúvida excluída com sucesso");
       
       // Update sidebar counter
       window.dispatchEvent(new Event("duvidas_changed"));
       
       fetchData();
     } catch (e) {
-      showToast("Não foi possível excluir. Tente novamente.", "error");
+      toast.error("Não foi possível excluir. Tente novamente.");
     } finally {
       setDeleting(null);
     }
@@ -417,13 +386,12 @@ export default function DuvidasPage() {
 
   const handleSaved = (successMsg: string) => {
     setSelected(null);
-    showToast(successMsg, "success");
+    toast.success(successMsg);
     fetchData();
   };
 
   return (
     <div className="min-h-full pb-10">
-      <ToastContainer />
       
       {/* Page Header */}
       <div className="mb-6">
@@ -434,7 +402,7 @@ export default function DuvidasPage() {
           <h1 className="text-xl font-bold text-gray-900">Dúvidas Não Respondidas</h1>
         </div>
         <p className="ml-11 text-sm text-gray-500">
-          Perguntas do chat que o motor RAG não localizou. Responda diretamente por aqui para abastecer a base de conhecimento.
+          Perguntas do chat que a Inteligência Artificial não localizou. Responda diretamente por aqui para abastecer a base de conhecimento.
         </p>
       </div>
 

@@ -29,7 +29,7 @@ export default function LoginPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Credenciais inválidas ou sem autorização");
+        throw new Error("E-mail ou senha inválidos");
       }
 
       const data = await response.json();

@@ -365,7 +365,7 @@ export default function UsuariosPage() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nome Completo <span className="text-red-500 ml-0.5">*</span></label>
                   <input
                     type="text"
                     required
@@ -376,7 +376,7 @@ export default function UsuariosPage() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">E-mail <span className="text-red-500 ml-0.5">*</span></label>
                   <input
                     type="email"
                     required
@@ -388,7 +388,7 @@ export default function UsuariosPage() {
 
                 {!editingUserId && currentUserPerfil === "admin" && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Perfil do Usuário</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Perfil do Usuário <span className="text-red-500 ml-0.5">*</span></label>
                     <select
                       value={formData.perfil}
                       onChange={(e) => setFormData({ ...formData, perfil: e.target.value })}
@@ -403,7 +403,7 @@ export default function UsuariosPage() {
                 {!editingUserId && (
                   <>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Senha <span className="text-red-500 ml-0.5">*</span></label>
                       <div className="relative">
                         <input
                           type={showPasswords ? "text" : "password"}
@@ -422,7 +422,7 @@ export default function UsuariosPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Confirmar Senha</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Confirmar Senha <span className="text-red-500 ml-0.5">*</span></label>
                       <div className="relative">
                         <input
                           type={showPasswords ? "text" : "password"}
@@ -501,7 +501,7 @@ export default function UsuariosPage() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Senha Atual</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Senha Atual <span className="text-red-500 ml-0.5">*</span></label>
                   <div className="relative">
                     <input
                       type={showPasswords ? "text" : "password"}
@@ -521,7 +521,7 @@ export default function UsuariosPage() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nova Senha</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nova Senha <span className="text-red-500 ml-0.5">*</span></label>
                   <div className="relative">
                     <input
                       type={showPasswords ? "text" : "password"}
@@ -541,7 +541,7 @@ export default function UsuariosPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Confirmar Nova Senha</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Confirmar Nova Senha <span className="text-red-500 ml-0.5">*</span></label>
                   <div className="relative">
                     <input
                       type={showPasswords ? "text" : "password"}

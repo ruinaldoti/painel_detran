@@ -401,9 +401,6 @@ export default function DuvidasPage() {
           </div>
           <h1 className="text-xl font-bold text-gray-900">Dúvidas Não Respondidas</h1>
         </div>
-        <p className="ml-11 text-sm text-gray-500">
-          Perguntas do chat que a Inteligência Artificial não localizou. Responda diretamente por aqui para abastecer a base de conhecimento.
-        </p>
       </div>
 
       {/* Metric Cards */}

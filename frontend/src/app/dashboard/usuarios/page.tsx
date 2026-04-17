@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Plus, Pencil, Trash2, KeyRound, X, Users } from "lucide-react";
+import toast from "react-hot-toast";
 
 interface Usuario {
   id: string;
@@ -216,6 +217,7 @@ export default function UsuariosPage() {
         throw new Error(errData.detail || "Erro ao alterar senha");
       }
 
+      toast.success("Senha alterada com sucesso! ✅");
       closeModal();
     } catch (err: any) {
       setError(err.message);

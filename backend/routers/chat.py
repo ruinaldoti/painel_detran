@@ -17,47 +17,59 @@ class ChatRequest(BaseModel):
 def chat_with_bot(request: ChatRequest, db: Session = Depends(get_db)):
     query = request.message
 
-    # 1. Gerar vetor da pergunta (reutilizado para busca vetorial E para matching de área)
-    query_vector = generate_embedding(query)
-
-    # 2. Busca semântica com pgvector (campo: vetor_embedding)
     try:
+        # 1. Gerar vetor da pergunta (reutilizado para busca vetorial E para matching de área)
+        query_vector = generate_embedding(query)
+        if query_vector is None:
+            raise Exception("Embedding indisponível (429/Resource Exhausted)")
+
+        # 2. Busca semântica com pgvector (campo: vetor_embedding)
         results = db.query(DocumentoChunk).order_by(
             DocumentoChunk.vetor_embedding.l2_distance(query_vector)
         ).limit(5).all()
+
+        # 3. Montar contexto a partir dos chunks recuperados
+        context_parts = []
+        for chunk in results:
+            meta = chunk.metadata_ or {}
+            parte = ""
+            if meta.get("area"):
+                parte += f"[Área: {meta['area']}] "
+            if meta.get("titulo"):
+                parte += f"[Documento: {meta['titulo']}] "
+            parte += chunk.conteudo_texto
+            context_parts.append(parte)
+
+        context_text = "\n\n---\n\n".join(context_parts)
+
+        # 4. Gerar resposta com o Gemini
+        # Retorna {"reply": str, "answered": bool}
+        result = generate_chat_response(query, context_text)
+        answer = result["reply"]
+        answered = result["answered"]
+
+        # 5. Se não respondeu → tentar salvar na tabela duvidas
+        if not answered:
+            saved = _try_save_duvida(query=query, query_vector=query_vector, db=db, area_nome=request.area)
+            if saved:
+                answer = "No momento não tenho a resposta exata para a sua dúvida, mas guardei ela aqui com a nossa equipe! Quando você voltar da próxima vez, já poderei responder. 😊"
+
+        return {
+            "reply": answer,
+            "contexts_used": len(results),
+        }
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro na busca vetorial: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        print(f"Erro no chat (Gemini API ou banco): {str(e)}")
+        
+        # O frontend recebe HTTP 200 sempre e exibe a mensagem gentil em caso de erro temporário
+        return {
+            "reply": "Poxa, no momento estou com dificuldades técnicas 🙁 Tente novamente em alguns instantes. Se o problema persistir, entre em contato com o DETRAN-CE pelo canal oficial.",
+            "contexts_used": 0,
+        }
 
-    # 3. Montar contexto a partir dos chunks recuperados
-    context_parts = []
-    for chunk in results:
-        meta = chunk.metadata_ or {}
-        parte = ""
-        if meta.get("area"):
-            parte += f"[Área: {meta['area']}] "
-        if meta.get("titulo"):
-            parte += f"[Documento: {meta['titulo']}] "
-        parte += chunk.conteudo_texto
-        context_parts.append(parte)
-
-    context_text = "\n\n---\n\n".join(context_parts)
-
-    # 4. Gerar resposta com o Gemini
-    # Retorna {"reply": str, "answered": bool}
-    result = generate_chat_response(query, context_text)
-    answer = result["reply"]
-    answered = result["answered"]
-
-    # 5. Se não respondeu → tentar salvar na tabela duvidas
-    if not answered:
-        saved = _try_save_duvida(query=query, query_vector=query_vector, db=db, area_nome=request.area)
-        if saved:
-            answer = "No momento não tenho a resposta exata para a sua dúvida, mas guardei ela aqui com a nossa equipe! Quando você voltar da próxima vez, já poderei responder. 😊"
-
-    return {
-        "reply": answer,
-        "contexts_used": len(results),
-    }
 
 
 from services.universo_detran import identificar_universo_detran

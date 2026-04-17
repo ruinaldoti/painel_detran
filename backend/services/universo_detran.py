@@ -18,6 +18,8 @@ def identificar_universo_detran(pergunta: str, db: Session, threshold: float = N
 
         # 1. Gerar embedding da pergunta
         embedding_pergunta = generate_embedding(pergunta)
+        if embedding_pergunta is None:
+            return False, None, None
         
         # 2. Buscar assunto mais similar por cosine similarity
         from sqlalchemy import text

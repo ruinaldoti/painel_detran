@@ -66,6 +66,8 @@ def _ingest_into_rag(duvida: Duvida, resposta: str, db: Session) -> Documento:
 
     # 3. Gerar embedding via Gemini (768 dimensões)
     embedding_vector = generate_embedding(texto)
+    if embedding_vector is None:
+        raise Exception("A API de Inteligência Artificial está indisponível (Cota Esgotada). Não foi possível responder a dúvida neste momento.")
 
     # 4. Criar chunk com metadados estruturados
     chunk = DocumentoChunk(

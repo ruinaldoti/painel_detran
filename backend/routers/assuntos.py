@@ -53,6 +53,8 @@ def create_assunto(body: AssuntoCreate, db: Session = Depends(get_db)):
         # Gera o embedding usando a API do Gemini
         try:
             vetor = generate_embedding(contexto)
+            if vetor is None:
+                raise Exception("A API de Inteligência Artificial está indisponível (Cota Esgotada). Não foi possível cadastrar o assunto.")
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Erro ao gerar embedding: {str(e)}")
 
@@ -90,6 +92,8 @@ def update_assunto(assunto_id: UUID, body: AssuntoUpdate, db: Session = Depends(
         if novo_contexto != assunto_db.contexto:
             try:
                 vetor = generate_embedding(novo_contexto)
+                if vetor is None:
+                    raise Exception("A API de Inteligência Artificial está indisponível (Cota Esgotada). Não foi possível atualizar o assunto.")
                 assunto_db.embedding = vetor
             except Exception as e:
                 raise HTTPException(status_code=500, detail=f"Erro ao gerar embedding: {str(e)}")

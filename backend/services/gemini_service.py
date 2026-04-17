@@ -19,15 +19,21 @@ def get_client():
     return genai.Client(api_key=API_KEY)
 
 
-def generate_embedding(text: str) -> list[float]:
-    client = get_client()
-    # gemini-embedding-001 com 768 dimensões (para compatibilidade com pgvector)
-    response = client.models.embed_content(
-        model="gemini-embedding-001",
-        contents=text,
-        config=types.EmbedContentConfig(output_dimensionality=768)
-    )
-    return response.embeddings[0].values
+def generate_embedding(text: str) -> list[float] | None:
+    try:
+        client = get_client()
+        # gemini-embedding-001 com 768 dimensões (para compatibilidade com pgvector)
+        response = client.models.embed_content(
+            model="gemini-embedding-001",
+            contents=text,
+            config=types.EmbedContentConfig(output_dimensionality=768)
+        )
+        return response.embeddings[0].values
+    except Exception as e:
+        error_msg = str(e)
+        if "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg:
+            return None
+        raise e
 
 
 def _cosine_similarity(vec1: list[float], vec2: list[float]) -> float:
@@ -60,6 +66,8 @@ def find_related_area(
     for area in areas:
         try:
             area_vector = generate_embedding(area.area)
+            if area_vector is None:
+                continue
             similarity = _cosine_similarity(query_vector, area_vector)
             if similarity > best_similarity:
                 best_similarity = similarity

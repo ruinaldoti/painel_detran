@@ -31,6 +31,10 @@ def repopular_embeddings():
             try:
                 # Gera o vetor SOMENTE usando o nome limpo (ex: "HABILITAÇÃO - GERAL")
                 vetor = generate_embedding(nome)
+                if vetor is None:
+                    print(f"❌ API indisponível (Cota Esgotada). Pulando atualização: {nome}")
+                    continue
+
                 embedding_str = "[" + ",".join(map(str, vetor)) + "]"
                 
                 # Executa o UPDATE no banco

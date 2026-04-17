@@ -51,6 +51,10 @@ def run_migration():
             
             try:
                 vetor = generate_embedding(contexto)
+                if vetor is None:
+                    print(f"API indisponível (Cota Esgotada). Pulando assunto: {doc_assunto}")
+                    continue
+
                 embedding_str = "[" + ",".join(map(str, vetor)) + "]"
                 
                 insert_query = text("""

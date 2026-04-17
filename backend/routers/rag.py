@@ -66,6 +66,8 @@ async def upload_document(
     for chunk in chunks:
         if chunk.strip():
             embedding_vector = generate_embedding(chunk)
+            if embedding_vector is None:
+                raise HTTPException(status_code=500, detail="A API de Inteligência Artificial está indisponível (Cota Esgotada). Não foi possível processar o documento no momento.")
             
             chunk_metadata = {
                 "titulo": titulo,

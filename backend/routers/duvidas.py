@@ -203,7 +203,7 @@ def list_duvidas(
 
 @router.get("/{duvida_id}")
 def get_duvida(
-    duvida_id: str,
+    duvida_id: int,
     db: Session = Depends(get_db),
     current_user: Usuario = Depends(get_current_user),
 ):
@@ -219,7 +219,7 @@ def get_duvida(
 
 @router.put("/{duvida_id}/responder")
 def responder_duvida(
-    duvida_id: str,
+    duvida_id: int,
     body: ResponderRequest,
     db: Session = Depends(get_db),
     current_user: Usuario = Depends(get_current_user),
@@ -305,7 +305,7 @@ def editar_duvida(
 
 @router.delete("/{duvida_id}")
 def delete_duvida(
-    duvida_id: str,
+    duvida_id: int,
     db: Session = Depends(get_db),
     current_user: Usuario = Depends(get_current_user),
 ):

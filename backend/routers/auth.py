@@ -61,10 +61,23 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         # Autenticação baseada no SQLAlchemy query
         user = db.query(Usuario).filter(Usuario.email == form_data.username).first()
         
-        if not user or not verify_password(form_data.password, user.senha_hash):
+        if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Credenciais incorretas ou acesso não autorizado",
+                detail="E-mail ou senha inválidos",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        if not user.ativo:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Usuário inativo. Entre em contato com o administrador.",
+            )
+            
+        if not verify_password(form_data.password, user.senha_hash):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="E-mail ou senha inválidos",
                 headers={"WWW-Authenticate": "Bearer"},
             )
                 

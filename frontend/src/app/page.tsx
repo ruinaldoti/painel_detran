@@ -29,7 +29,14 @@ export default function LoginPage() {
       });
 
       if (!response.ok) {
-        throw new Error("E-mail ou senha inválidos");
+        let errorMsg = "E-mail ou senha inválidos";
+        try {
+          const errData = await response.json();
+          if (errData.detail) errorMsg = errData.detail;
+        } catch (e) {
+          // fallback to default
+        }
+        throw new Error(errorMsg);
       }
 
       const data = await response.json();

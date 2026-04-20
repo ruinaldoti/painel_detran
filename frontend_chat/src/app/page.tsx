@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { X, Send, Loader2, ChevronRight, ArrowLeft, Bot } from "lucide-react";
 
-const API_URL = "https://api.iairuinaldo.com.br";
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://api.iairuinaldo.com.br";
 
 interface Area { id: string; area: string }
 interface Documento { id: string; titulo: string; assunto: string }

@@ -35,7 +35,7 @@ export default function DocumentosPage() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const API_URL = "https://api.iairuinaldo.com.br";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://api.iairuinaldo.com.br";
 
   const closeModal = () => {
     setIsModalOpen(false);

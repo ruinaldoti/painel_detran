@@ -87,7 +87,7 @@ def _try_save_duvida(query: str, query_vector: list[float], db: Session, area_no
 
         # 1. Tenta identificar semântica de "Assuntos" (Documentos) PRIMEIRO, 
         # para tentar achar a granularidade máxima (id_assunto) além da área.
-        pertence, id_area_semantica, id_assunto_semantica = identificar_universo_detran(query, db)
+        pertence, id_area_semantica, id_assunto_semantica = identificar_universo_detran(query, db, embedding_pergunta=query_vector)
         
         if pertence:
             id_area = id_area_semantica

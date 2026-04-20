@@ -1,7 +1,10 @@
 import math
 import os
+from functools import lru_cache
 from google import genai
 from google.genai import types
+from sqlalchemy.orm import Session
+from sqlalchemy import text
 
 API_KEY = os.getenv("GEMINI_API_KEY", "")
 
@@ -35,6 +38,11 @@ def generate_embedding(text: str) -> list[float] | None:
             return None
         raise e
 
+@lru_cache(maxsize=256)
+def generate_embedding_cached(text: str) -> tuple[float, ...] | None:
+    result = generate_embedding(text)
+    return tuple(result) if result else None
+
 
 def _cosine_similarity(vec1: list[float], vec2: list[float]) -> float:
     """Calcula cosine similarity entre dois vetores (sem numpy)."""
@@ -48,38 +56,35 @@ def _cosine_similarity(vec1: list[float], vec2: list[float]) -> float:
 
 def find_related_area(
     query_vector: list[float],
-    areas: list,
+    db: Session,
 ) -> tuple[str | None, float]:
     """
-    Identifica a área mais relacionada à pergunta usando embedding similarity.
-
-    Retorna (area_id, similarity) se encontrar área com similarity ≥ threshold,
-    ou (None, best_similarity) caso contrário.
-
-    Parâmetros:
-        query_vector: embedding já gerado da pergunta do usuário
-        areas: lista de objetos Area (com .id e .area)
+    Identifica a área mais relacionada à pergunta usando busca vetorial direta no pgvector
+    na tabela assuntos.
+    
+    Retorna (area_id, similarity) se encontrar assunto com similarity >= threshold,
+    ou (None, melhor_similaridade) caso contrário.
     """
-    best_area_id: str | None = None
-    best_similarity: float = 0.0
+    try:
+        query = text("""
+            SELECT id, id_area, nome,
+                   1 - (embedding <=> CAST(:embedding AS vector(768))) AS similaridade
+            FROM public.assuntos
+            ORDER BY embedding <=> CAST(:embedding AS vector(768))
+            LIMIT 1
+        """)
+        embedding_str = "[" + ",".join(map(str, query_vector)) + "]"
+        resultado = db.execute(query, {"embedding": embedding_str}).fetchone()
 
-    for area in areas:
-        try:
-            area_vector = generate_embedding(area.area)
-            if area_vector is None:
-                continue
-            similarity = _cosine_similarity(query_vector, area_vector)
-            if similarity > best_similarity:
-                best_similarity = similarity
-                best_area_id = str(area.id)
-        except Exception:
-            # Se falhar ao gerar embedding de uma área, continua com as outras
-            continue
-
-    if best_similarity >= _AREA_SIMILARITY_THRESHOLD:
-        return best_area_id, best_similarity
-
-    return None, best_similarity
+        if resultado:
+            if resultado.similaridade >= _AREA_SIMILARITY_THRESHOLD:
+                return str(resultado.id_area), resultado.similaridade
+            return None, resultado.similaridade
+            
+    except Exception as e:
+        print(f"Erro na busca vetorial da área: {e}")
+        
+    return None, 0.0
 
 
 def generate_chat_response(query: str, context: str) -> dict:

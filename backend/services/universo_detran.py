@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 from services.gemini_service import generate_embedding
 
-def identificar_universo_detran(pergunta: str, db: Session, threshold: float = None) -> tuple[bool, UUID | None, UUID | None]:
+def identificar_universo_detran(pergunta: str, db: Session, threshold: float = None, embedding_pergunta: list[float] | None = None) -> tuple[bool, UUID | None, UUID | None]:
     """
     Verifica se a pergunta pertence ao universo do Detran.
     
@@ -16,8 +16,10 @@ def identificar_universo_detran(pergunta: str, db: Session, threshold: float = N
         if threshold is None:
             threshold = float(os.getenv("UNIVERSO_DETRAN_THRESHOLD", "0.75"))
 
-        # 1. Gerar embedding da pergunta
-        embedding_pergunta = generate_embedding(pergunta)
+        # 1. Usar embedding fornecido ou gerar um novo da pergunta
+        if embedding_pergunta is None:
+            embedding_pergunta = generate_embedding(pergunta)
+        
         if embedding_pergunta is None:
             return False, None, None
         

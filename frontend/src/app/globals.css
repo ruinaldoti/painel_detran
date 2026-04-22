@@ -30,3 +30,24 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Padronização de Placeholder para inputs e textareas */
+::placeholder {
+  color: var(--foreground);
+  opacity: 1; /* Override Firefox default opacity */
+}
+
+::-webkit-input-placeholder {
+  color: var(--foreground);
+  opacity: 1;
+}
+
+::-moz-placeholder {
+  color: var(--foreground);
+  opacity: 1; /* Firefox 19+ */
+}
+
+:-ms-input-placeholder {
+  color: var(--foreground);
+  opacity: 1; /* IE 10+ */
+}

@@ -6,6 +6,7 @@
   --detran-green-light: #0E8B42;
   --detran-orange: #E8520A;
   --detran-gray: #f4f4f4;
+  --foreground: #1A1A1A;
 }
 
 body {
@@ -29,3 +30,24 @@ body {
 }
 .typing-dot:nth-child(1) { animation-delay: -0.32s; }
 .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+/* Padronização de Placeholder para inputs e textareas */
+::placeholder {
+  color: var(--foreground);
+  opacity: 1; /* Override Firefox default opacity */
+}
+
+::-webkit-input-placeholder {
+  color: var(--foreground);
+  opacity: 1;
+}
+
+::-moz-placeholder {
+  color: var(--foreground);
+  opacity: 1; /* Firefox 19+ */
+}
+
+:-ms-input-placeholder {
+  color: var(--foreground);
+  opacity: 1; /* IE 10+ */
+}

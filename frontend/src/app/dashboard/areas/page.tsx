@@ -264,7 +264,7 @@ export default function AreasPage() {
       </div>
 
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-800 uppercase tracking-tight">CADASTRO DE ÁREAS & ASSUNTOS</h1>
+        <h1 className="text-2xl font-bold text-gray-800 uppercase tracking-tight">ÁREA E ASSUNTOS</h1>
         <button
           onClick={() => { setIsModalAreaOpen(true); setErrorArea(""); setNovaArea(""); }}
           className="rounded bg-[#2563eb] px-5 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 transition-colors"

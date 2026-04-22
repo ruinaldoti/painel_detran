@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Upload, X, FileText, Loader2, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -182,6 +182,22 @@ export default function DocumentosPage() {
     }
   };
 
+  const sortedDocuments = useMemo(() => {
+    if (!documents || documents.length === 0) return [];
+    
+    return [...documents].sort((a, b) => {
+      const areaA = a.id_area ? areas.find(x => x.id === a.id_area)?.area || "" : "";
+      const areaB = b.id_area ? areas.find(x => x.id === b.id_area)?.area || "" : "";
+      
+      const compArea = String(areaA).localeCompare(String(areaB), 'pt-BR');
+      if (compArea !== 0) return compArea;
+      
+      const assuntoA = a.assunto || "";
+      const assuntoB = b.assunto || "";
+      return String(assuntoA).localeCompare(String(assuntoB), 'pt-BR');
+    });
+  }, [documents, areas]);
+
   return (
     <div className="w-full h-full flex flex-col space-y-6">
       
@@ -239,7 +255,7 @@ export default function DocumentosPage() {
                   </td>
                 </tr>
               ) : (
-                documents.map((doc) => (
+                sortedDocuments.map((doc) => (
                   <tr key={doc.id} className="even:bg-gray-50 hover:bg-blue-50/50 transition-colors">
                     <td className="px-5 py-3 text-sm text-gray-600 align-middle">
                       {doc.id_area

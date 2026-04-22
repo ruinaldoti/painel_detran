@@ -189,12 +189,12 @@ export default function DocumentosPage() {
       const areaA = a.id_area ? areas.find(x => x.id === a.id_area)?.area || "" : "";
       const areaB = b.id_area ? areas.find(x => x.id === b.id_area)?.area || "" : "";
       
-      const compArea = String(areaA).localeCompare(String(areaB), 'pt-BR');
+      const compArea = String(areaA).localeCompare(String(areaB), 'pt-BR', { sensitivity: 'base' });
       if (compArea !== 0) return compArea;
       
       const assuntoA = a.assunto || "";
       const assuntoB = b.assunto || "";
-      return String(assuntoA).localeCompare(String(assuntoB), 'pt-BR');
+      return String(assuntoA).localeCompare(String(assuntoB), 'pt-BR', { sensitivity: 'base' });
     });
   }, [documents, areas]);
 

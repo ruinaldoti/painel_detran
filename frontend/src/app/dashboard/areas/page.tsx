@@ -64,6 +64,9 @@ export default function AreasPage() {
 
       if (response.ok) {
         const data = await response.json();
+        if (Array.isArray(data)) {
+          data.sort((a: Area, b: Area) => String(a.area).localeCompare(String(b.area), 'pt-BR', { sensitivity: 'base' }));
+        }
         setAreas(data);
       }
     } catch (error) {
@@ -79,6 +82,9 @@ export default function AreasPage() {
       const response = await fetch(`${API_URL}/assuntos/area/${areaId}`);
       if (response.ok) {
         const data = await response.json();
+        if (Array.isArray(data)) {
+          data.sort((a: Assunto, b: Assunto) => String(a.assunto).localeCompare(String(b.assunto), 'pt-BR', { sensitivity: 'base' }));
+        }
         setAssuntos(data);
       }
     } catch (error) {

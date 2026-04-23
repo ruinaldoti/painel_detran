@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM registry.detran.ce.gov.br/administrativo/node:20-alpine
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
